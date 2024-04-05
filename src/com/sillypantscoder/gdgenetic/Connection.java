@@ -1,6 +1,6 @@
 package com.sillypantscoder.gdgenetic;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 
 public class Connection {
 	public NetworkNode connection;
@@ -9,8 +9,8 @@ public class Connection {
 		this.connection = to;
 		this.value = value;
 	}
-	public ArrayList<Connection> getConnections() {
-		ArrayList<Connection> c = connection.getConnections();
+	public HashSet<Connection> getConnections() {
+		HashSet<Connection> c = connection.getConnections();
 		c.add(this);
 		return c;
 	}

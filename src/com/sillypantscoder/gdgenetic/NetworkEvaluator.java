@@ -179,4 +179,11 @@ public class NetworkEvaluator {
 		}
 		return (double)(totalScore) / n_trials;
 	}
+	public static double evaluateNetworks(ArrayList<Network> networks) {
+		double totalScore = 0;
+		for (int i = 0; i < networks.size(); i++) {
+			totalScore += evaluateNetwork(networks.get(i));
+		}
+		return totalScore / networks.size();
+	}
 }

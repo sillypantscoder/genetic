@@ -53,7 +53,7 @@ public class CubeMode extends GameMode {
 			if (this.player.specialJump.isPresent() && this.player.view.hasStartedPressing) {
 				this.player.specialJump.ifPresent(e -> e.run());
 				this.player.view.hasStartedPressing = false;
-			} else if (this.player.groundHeight != null) {
+			} else if (this.player.groundHeight.isPresent()) {
 				this.player.vy = 0.33 * this.player.gravity;
 				this.player.view.hasStartedPressing = false;
 			}

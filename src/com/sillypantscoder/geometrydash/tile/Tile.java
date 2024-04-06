@@ -7,6 +7,7 @@ import com.sillypantscoder.geometrydash.Rect;
 import com.sillypantscoder.geometrydash.Player;
 
 public class Tile extends SceneItem {
+	public static final int RENDER_TILE_SIZE = 10;
 	public Tile(View view, double x, double y, double dw, double dh, double rotation) {
 		super(view, x, y);
 		this.rotation = rotation;

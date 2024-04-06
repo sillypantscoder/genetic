@@ -1,5 +1,8 @@
 package com.sillypantscoder.gdgenetic;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class Main {
@@ -13,7 +16,7 @@ public class Main {
 		System.out.println("Initial score is: " + initialScore);
 		bar(initialScore);
 		// Run a bunch of iterations
-		int totalIterations = 40;
+		int totalIterations = 100;
 		double previousScore = initialScore;
 		for (int i = 0; i < totalIterations + 1; i++) {
 			// Find average score for this iteration
@@ -31,14 +34,23 @@ public class Main {
 		// Find which network is best
 		Network best = GeneticAlgorithm.purgeNetworkList(networkList, 1).get(0);
 		System.out.println("Best network after " + totalIterations + " iterations:");
-		System.out.println(best.save());
+		String filename = "network.txt";
+		try {
+			BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
+			writer.write(best.save());
+			writer.close();
+			System.out.println("Saved to file: " + filename);
+		} catch (IOException e) {
+			System.out.println(best.save());
+			e.printStackTrace();
+		}
 	}
 	public static double neat(double in) {
 		return Math.round(in * 1000.0) / 1000.0;
 	}
 	public static void bar(double v) {
 		// ascii art :D
-		double spaces = (v - 19.5) * 50;
+		double spaces = (v - 97.5) * 10;
 		try {
 			System.out.println("-".repeat((int)(Math.round(spaces))) + "#");
 		} catch (IllegalArgumentException e) {

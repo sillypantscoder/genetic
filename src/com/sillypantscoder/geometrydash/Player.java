@@ -4,7 +4,7 @@ import java.util.Optional;
 
 public class Player extends SceneItem {
 	public double vy = 0;
-	public Optional<Double> groundHeight = null;
+	public Optional<Double> groundHeight = Optional.empty();
 	public Optional<Runnable> specialJump = Optional.empty();
 	public double gravity = 1;
 	public GameMode mode;

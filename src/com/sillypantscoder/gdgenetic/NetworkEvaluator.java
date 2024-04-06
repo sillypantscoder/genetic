@@ -1,8 +1,8 @@
 package com.sillypantscoder.gdgenetic;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Random;
+import java.util.function.BinaryOperator;
 import java.util.function.IntUnaryOperator;
 
 import com.sillypantscoder.geometrydash.View;
@@ -14,28 +14,29 @@ public class NetworkEvaluator {
 	public static void main(String[] args) {
 		// Level Generation
 		View v = LevelGeneration.generateLevel();
-		v.tiles.add(new BasicSpike(v, 1, 0, 0));
-		v.tiles.add(new BasicBlock(v, 0, 0, 0));
-		for (int i = 0; i < v.tiles.size(); i++) {
+		BinaryOperator<Integer> getTile = (x, y) -> {
+			if (y < 0) return 1;
+			for (int i = 0; i < v.tiles.size(); i++) {
+				Tile tile = v.tiles.get(i);
+				if (tile.x == x && tile.y == y) {
+					int a = tile.drawForNetwork();
+					return a;
+				}
+			}
+			return 0;
+		};
+		for (int y = (int)(Math.ceil(v.getStageHeight())); y > -1; y--) {
+			for (int x = 0; x < v.getStageWidth(); x++) {
+				int p = getTile.apply(x, y);
+				String s = p==0 ? "-" : (p==1 ? "#" : "^");
+				System.out.print(s);
+			}
 			System.out.println();
-			Tile tile = v.tiles.get(i);
-			int[][] a = tile.drawForNetwork();
-			String x_str = "X=" + tile.x + "  ";
-			String y_str = "Y=" + tile.y + "  ";
-			String space = " ".repeat(Math.max(x_str.length(), y_str.length()));
-			x_str += " ".repeat(space.length() - x_str.length());
-			y_str += " ".repeat(space.length() - y_str.length());
-			System.out.print(space); System.out.println(String.join(" ", Arrays.stream(a[0]).mapToObj(String::valueOf).toArray(String[]::new)));
-			System.out.print(x_str); System.out.println(String.join(" ", Arrays.stream(a[1]).mapToObj(String::valueOf).toArray(String[]::new)));
-			System.out.print(y_str); System.out.println(String.join(" ", Arrays.stream(a[2]).mapToObj(String::valueOf).toArray(String[]::new)));
-			System.out.print(space); System.out.println(String.join(" ", Arrays.stream(a[3]).mapToObj(String::valueOf).toArray(String[]::new)));
 		}
 		// Rendering
 		ArrayList<Double> inputs = Rendering.getNetworkInputs(v);
 		for (int i = 0; i < inputs.size(); i += 3) {
-			if (i % (5*4*3) == 0) System.out.println();
-			if (i % (5*4*3*4) == 0) System.out.println();
-			if (i % (4*3) == 0) System.out.print(" ");
+			if (i % (5*3) == 0) System.out.println();
 			System.out.print(
 				inputs.get(i+0)==1 ? "-" :
 				inputs.get(i+1)==1 ? "#" : "V");
@@ -43,7 +44,7 @@ public class NetworkEvaluator {
 		System.out.println();
 		System.out.println("camera: (" + Rendering.getCameraX(v) + ", " + Rendering.getCameraY(v) + ")");
 		// Simulation
-		Network network = Network.createZeroLayer(5*4 * 5*4 * 3);
+		Network network = Network.createZeroLayer(5 * 5 * 3);
 		double score = evaluateNetwork(network);
 		System.out.println(score);
 	}
@@ -88,8 +89,6 @@ public class NetworkEvaluator {
 			}
 			int blockX = (int)(Math.floor(x));
 			int blockY = (int)(Math.floor(y));
-			int pixelX = (int)(Math.floor((x - blockX) * 4));
-			int pixelY = (int)(Math.floor((y - blockY) * 4));
 			Tile tile = null;
 			for (int i = 0; i < view.tiles.size(); i++) {
 				Tile t = view.tiles.get(i);
@@ -101,9 +100,9 @@ public class NetworkEvaluator {
 				// Air
 				return 0;
 			}
-			int[][] pixels = tile.drawForNetwork();
-			// if (pixels[pixelY][pixelX]==2)System.out.println("[" + x + ", " + y + " => " + pixelX + ", " + pixelY + "]");
-			return pixels[3-pixelY][pixelX];
+			int pixel = tile.drawForNetwork();
+			// if (pixel==2)System.out.println("[" + x + ", " + y + " => " + pixelX + ", " + pixelY + "]");
+			return pixel;
 		}
 		public static ArrayList<Double> get1HPixel(View view, double x, double y) {
 			int pixel = getPixel(view, x, y);
@@ -134,9 +133,9 @@ public class NetworkEvaluator {
 			ArrayList<Double> inputs = new ArrayList<Double>();
 			double cameraX = getCameraX(view);
 			double cameraY = getCameraY(view);
-			for (int y = 0; y < 5*4; y++) {
-				for (int x = 0; x < 5*4; x++) {
-					ArrayList<Double> pixel = get1HPixel(view, (x / 4.0) + cameraX, (y / 4.0) + cameraY);
+			for (int y = 0; y < 5; y++) {
+				for (int x = 0; x < 5; x++) {
+					ArrayList<Double> pixel = get1HPixel(view, (x / 1.0) + cameraX, (y / 1.0) + cameraY);
 					inputs.addAll(pixel);
 				}
 			}

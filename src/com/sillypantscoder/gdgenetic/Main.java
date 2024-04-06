@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class Main {
 	public static void main(String[] args) {
 		// Make our network
-		Network network = Network.createZeroLayer(5*4 * 5*4 * 3);
+		Network network = GeneticAlgorithm.createNetwork();
 		ArrayList<Network> networkList = new ArrayList<Network>();
 		networkList.add(network);
 		// Initial score
@@ -14,7 +14,7 @@ public class Main {
 		bar(initialScore);
 		// Run a bunch of iterations
 		int totalIterations = 40;
-		double previousScore = 0;
+		double previousScore = initialScore;
 		for (int i = 0; i < totalIterations + 1; i++) {
 			// Find average score for this iteration
 			System.out.println("Iterations done: " + i + "/" + totalIterations + " (" + neat(((double)(i)/totalIterations)*100.0) + "%)");
@@ -28,13 +28,21 @@ public class Main {
 			if (i == totalIterations) continue;
 			networkList = GeneticAlgorithm.runOneIteration(networkList);
 		}
+		// Find which network is best
+		Network best = GeneticAlgorithm.purgeNetworkList(networkList, 1).get(0);
+		System.out.println("Best network after " + totalIterations + " iterations:");
+		System.out.println(best.save());
 	}
 	public static double neat(double in) {
 		return Math.round(in * 1000.0) / 1000.0;
 	}
 	public static void bar(double v) {
 		// ascii art :D
-		double spaces = (v - 19.5) * 100;
-		System.out.println("-".repeat((int)(Math.round(spaces))) + "#");
+		double spaces = (v - 19.5) * 50;
+		try {
+			System.out.println("-".repeat((int)(Math.round(spaces))) + "#");
+		} catch (IllegalArgumentException e) {
+			System.out.println("<- " + Math.round(spaces));
+		}
 	}
 }

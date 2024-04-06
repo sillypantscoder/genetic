@@ -8,9 +8,12 @@ import java.util.HashSet;
 import java.util.Random;
 
 public class GeneticAlgorithm {
+	public static final int N_MODIFICATIONS_PER_ALTER = 10;
+	public static final int N_SPLITS_PER_NETWORK = 20;
+	public static final int N_BEST_NETWORKS = 60;
 	public static void main(String[] args) {
 		// Make a network
-		Network network = Network.createZeroLayer(5*4 * 5*4 * 3); // 5*4: Height     5*4: Width    3: Pixel depth
+		Network network = createNetwork();
 		// Put it in a set by itself
 		ArrayList<Network> startingNetworks = new ArrayList<Network>();
 		startingNetworks.add(network);
@@ -23,6 +26,10 @@ public class GeneticAlgorithm {
 		ArrayList<Network> evenBetterNetworks = runOneIteration(betterNetworks);
 		System.out.println("Even better score: " + NetworkEvaluator.evaluateNetworks(evenBetterNetworks));
 	}
+	public static Network createNetwork() {
+		// Create a compatible network.
+		return Network.createZeroLayer(5 * 5 * 3); // 5: Height     5: Width    3: Pixel depth
+	}
 	public static Network alterNetwork(Network input) {
 		Network output = input.copy();
 		// Get a list of all the connections
@@ -30,15 +37,15 @@ public class GeneticAlgorithm {
 		// Randomly select some
 		ArrayList<Connection> connectionList = new ArrayList<>(connections);
 		Random r = new Random();
-		for (int i = 0; i < 60; i++) {
+		for (int i = 0; i < N_MODIFICATIONS_PER_ALTER; i++) {
 			// For each randomly chosen connection:
 			int randomIndex = r.nextInt(connectionList.size());
 			Connection chosen = connectionList.get(randomIndex);
 			// Alter it
 			if (r.nextBoolean()) {
-				chosen.value += 0.1;
+				chosen.value += Math.random();
 			} else {
-				chosen.value -= 0.1;
+				chosen.value -= Math.random();
 			}
 			// Make sure the resulting value is within the valid range
 			if (chosen.value >= 1) chosen.value = 1;
@@ -50,7 +57,7 @@ public class GeneticAlgorithm {
 	public static ArrayList<Network> splitNetwork(Network input) {
 		ArrayList<Network> results = new ArrayList<Network>();
 		results.add(input);
-		for (int i = 0; i < 15; i++) {
+		for (int i = 0; i < N_SPLITS_PER_NETWORK; i++) {
 			results.add(alterNetwork(input));
 		}
 		return results;
@@ -62,12 +69,12 @@ public class GeneticAlgorithm {
 		}
 		return results;
 	}
-	public static ArrayList<Network> purgeNetworkList(ArrayList<Network> networks) {
+	public static ArrayList<Network> purgeNetworkList(ArrayList<Network> networks, int number) {
 		HashMap<Network, Double> scores = new HashMap<Network, Double>();
 		for (int i = 0; i < networks.size(); i++) {
 			double score = NetworkEvaluator.evaluateNetwork(networks.get(i));
 			scores.put(networks.get(i), score);
-			if (i > 0 && i % 100 == 0) System.out.print(" [@" + i + "]");
+			if (i > 0 && i % 400 == 0) System.out.print(" [@" + i + "]");
 		}
 		ArrayList<Network> sorted = new ArrayList<Network>(networks);
 		sorted.sort(new Comparator<Network>() {
@@ -79,9 +86,9 @@ public class GeneticAlgorithm {
 				return 0;
 			}
 		});
-		// Collections.reverse(sorted);
+		Collections.reverse(sorted);
 		try {
-			return new ArrayList<Network>(sorted.subList(0, 30));
+			return new ArrayList<Network>(sorted.subList(0, number));
 		} catch (IndexOutOfBoundsException e) {
 			return new ArrayList<Network>(sorted);
 		}
@@ -92,7 +99,7 @@ public class GeneticAlgorithm {
 		ArrayList<Network> splitList = splitNetworkList(networks);
 		System.out.print(" -> " + splitList.size());
 		// 2. Evaluate the networks
-		ArrayList<Network> goodNetworks = purgeNetworkList(splitList);
+		ArrayList<Network> goodNetworks = purgeNetworkList(splitList, N_BEST_NETWORKS);
 		System.out.println(" -> " + goodNetworks.size() + "]");
 		return goodNetworks;
 	}

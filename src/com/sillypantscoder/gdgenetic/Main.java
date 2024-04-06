@@ -30,19 +30,19 @@ public class Main {
 			// Run the iteration
 			if (i == totalIterations) continue;
 			networkList = GeneticAlgorithm.runOneIteration(networkList);
-		}
-		// Find which network is best
-		Network best = GeneticAlgorithm.purgeNetworkList(networkList, 1).get(0);
-		System.out.println("Best network after " + totalIterations + " iterations:");
-		String filename = "network.txt";
-		try {
-			BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
-			writer.write(best.save());
-			writer.close();
-			System.out.println("Saved to file: " + filename);
-		} catch (IOException e) {
-			System.out.println(best.save());
-			e.printStackTrace();
+			// Find which network is best
+			Network best = GeneticAlgorithm.purgeNetworkList(networkList, 1).get(0);
+			String filename = "network" + (i + 1) + ".txt";
+			try {
+				BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
+				writer.write(best.save());
+				writer.close();
+				System.out.println("\t[Saved to file: " + filename + "]");
+			} catch (IOException e) {
+				System.out.println(best.save());
+				e.printStackTrace();
+			}
+			NetworkEvaluator.VideoMaker.runSimulation(network, i + 1);
 		}
 	}
 	public static double neat(double in) {

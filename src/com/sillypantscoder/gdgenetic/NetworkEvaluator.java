@@ -175,9 +175,9 @@ public class NetworkEvaluator {
 	public static class VideoMaker {
 		public static void main(String[] args) {
 			Network network = GeneticAlgorithm.createNetwork();
-			runSimulation(network);
+			runSimulation(network, 0);
 		}
-		public static void runSimulation(Network network) {
+		public static void runSimulation(Network network, int filename) {
 			View view = LevelGeneration.generateLevel();
 			// Render the level
 			Function<Double, Integer> cx = x -> (int)(Math.ceil(          (x + 2)           * Tile.RENDER_TILE_SIZE));
@@ -232,7 +232,8 @@ public class NetworkEvaluator {
 				}
 			}
 			// Save the image
-			try { surface.writeToFile("game.png"); }
+			String fn = "network" + filename + ".png";
+			try { surface.writeToFile(fn); System.out.println("[Saved to file: " + fn + "]"); }
 			catch (IOException e) { e.printStackTrace(); }
 		}
 	}

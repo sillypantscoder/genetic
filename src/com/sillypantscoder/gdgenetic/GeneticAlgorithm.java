@@ -74,7 +74,7 @@ public class GeneticAlgorithm {
 		for (int i = 0; i < networks.size(); i++) {
 			double score = NetworkEvaluator.evaluateNetwork(networks.get(i));
 			scores.put(networks.get(i), score);
-			if (i > 0 && i % 400 == 0) System.out.print(" [@" + i + "]");
+			if (i > 0 && i % 100 == 0) System.out.print(" [@" + i + "]");
 		}
 		ArrayList<Network> sorted = new ArrayList<Network>(networks);
 		sorted.sort(new Comparator<Network>() {

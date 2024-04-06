@@ -1,6 +1,9 @@
 package com.sillypantscoder.gdgenetic;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
 
@@ -27,7 +30,7 @@ public class GeneticAlgorithm {
 		// Randomly select some
 		ArrayList<Connection> connectionList = new ArrayList<>(connections);
 		Random r = new Random();
-		for (int i = 0; i < 20; i++) {
+		for (int i = 0; i < 60; i++) {
 			// For each randomly chosen connection:
 			int randomIndex = r.nextInt(connectionList.size());
 			Connection chosen = connectionList.get(randomIndex);
@@ -47,7 +50,7 @@ public class GeneticAlgorithm {
 	public static ArrayList<Network> splitNetwork(Network input) {
 		ArrayList<Network> results = new ArrayList<Network>();
 		results.add(input);
-		for (int i = 0; i < 5; i++) {
+		for (int i = 0; i < 15; i++) {
 			results.add(alterNetwork(input));
 		}
 		return results;
@@ -60,24 +63,31 @@ public class GeneticAlgorithm {
 		return results;
 	}
 	public static ArrayList<Network> purgeNetworkList(ArrayList<Network> networks) {
-		ArrayList<Double> scores = new ArrayList<Double>();
-		double totalScore = 0;
+		HashMap<Network, Double> scores = new HashMap<Network, Double>();
 		for (int i = 0; i < networks.size(); i++) {
 			double score = NetworkEvaluator.evaluateNetwork(networks.get(i));
-			scores.add(score);
-			totalScore += score;
+			scores.put(networks.get(i), score);
+			if (i > 0 && i % 100 == 0) System.out.print(" [@" + i + "]");
 		}
-		double avgScore = totalScore / networks.size();
-		ArrayList<Network> goodNetworks = new ArrayList<Network>();
-		for (int i = 0; i < networks.size(); i++) {
-			if (scores.get(i) > avgScore) {
-				goodNetworks.add(networks.get(i));
+		ArrayList<Network> sorted = new ArrayList<Network>(networks);
+		sorted.sort(new Comparator<Network>() {
+			@Override
+			public int compare(Network n1, Network n2) {
+				// -1 = n1 is less than n2, 1 = n1 is greater than n2, 0 = equal
+				if (scores.get(n1) < scores.get(n2)) return -1;
+				if (scores.get(n2) < scores.get(n1)) return 1;
+				return 0;
 			}
+		});
+		// Collections.reverse(sorted);
+		try {
+			return new ArrayList<Network>(sorted.subList(0, 30));
+		} catch (IndexOutOfBoundsException e) {
+			return new ArrayList<Network>(sorted);
 		}
-		return goodNetworks;
 	}
 	public static ArrayList<Network> runOneIteration(ArrayList<Network> networks) {
-		System.out.print("[" + networks.size());
+		System.out.print("\t[" + networks.size());
 		// 1. Randomly alter all the networks
 		ArrayList<Network> splitList = splitNetworkList(networks);
 		System.out.print(" -> " + splitList.size());

@@ -97,6 +97,16 @@ public class Network {
 		}
 		return new Network(inputs, outputs);
 	}
+	public Network copy() {
+		return Network.load(save());
+	}
+	public HashSet<Connection> getConnections() {
+		HashSet<Connection> result = new HashSet<Connection>();
+		for (int i = 0; i < outputs.size(); i++) {
+			result.addAll(outputs.get(i).getConnections());
+		}
+		return result;
+	}
 	/**
 	 * Create a network with zero hidden layers and one output.
 	 * @param inputSize The number of inputs.

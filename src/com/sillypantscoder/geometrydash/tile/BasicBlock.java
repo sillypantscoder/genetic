@@ -18,4 +18,12 @@ public class BasicBlock extends TileBlock {
 	<rect x="1" y="1" width="18" height="18" fill="url(#mainGradient)" />
 </svg>`
 	} */
+	public int[][] drawForNetwork() {
+		return new int[][] {
+			new int[] { 1, 1, 1, 1 },
+			new int[] { 1, 1, 1, 1 },
+			new int[] { 1, 1, 1, 1 },
+			new int[] { 1, 1, 1, 1 }
+		};
+	}
 }

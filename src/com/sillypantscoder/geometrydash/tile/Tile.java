@@ -3,6 +3,7 @@ package com.sillypantscoder.geometrydash.tile;
 import com.sillypantscoder.geometrydash.View;
 import com.sillypantscoder.geometrydash.SceneItem;
 import com.sillypantscoder.geometrydash.Rect;
+
 import com.sillypantscoder.geometrydash.Player;
 
 public class Tile extends SceneItem {
@@ -18,4 +19,12 @@ public class Tile extends SceneItem {
 		super.tick(amount);
 	}
 	public void collide(Player player) {}
+	public int[][] drawForNetwork() {
+		return new int[][] {
+			new int[] { 0, 0, 0, 0 },
+			new int[] { 0, 0, 0, 0 },
+			new int[] { 0, 0, 0, 0 },
+			new int[] { 0, 0, 0, 0 }
+		};
+	}
 }

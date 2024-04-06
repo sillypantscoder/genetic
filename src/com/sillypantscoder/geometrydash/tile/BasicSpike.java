@@ -28,4 +28,12 @@ public class BasicSpike extends TileDeath {
 	public Rect getRect() {
 		return super.getRect().relative(0.2, 0, 0.6, 0.8);
 	}
+	public int[][] drawForNetwork() {
+		return new int[][] {
+			new int[] { 0, 0, 0, 0 },
+			new int[] { 0, 2, 2, 0 },
+			new int[] { 0, 2, 2, 0 },
+			new int[] { 0, 2, 2, 0 }
+		};
+	}
 }

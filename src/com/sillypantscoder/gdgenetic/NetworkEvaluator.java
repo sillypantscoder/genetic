@@ -84,7 +84,7 @@ public class NetworkEvaluator {
 		}
 		public static int addLongBlocks(View v, int x) {
 			if (new Random().nextBoolean()) v.tiles.add(new BasicSpike(v, x + 3, 0, 0));
-			v.tiles.add(new BasicBlock(v, x + 4, 0, 0)); if (new Random().nextBoolean()) v.tiles.add(new BasicSpike(v, x + 4, 1, 0));
+			v.tiles.add(new BasicBlock(v, x + 4, 0, 0));
 			v.tiles.add(new BasicBlock(v, x + 5, 0, 0));
 			v.tiles.add(new BasicBlock(v, x + 6, 0, 0));
 			v.tiles.add(new BasicBlock(v, x + 7, 0, 0)); if (new Random().nextBoolean()) v.tiles.add(new BasicSpike(v, x + 7, 1, 0));
@@ -95,6 +95,21 @@ public class NetworkEvaluator {
 			if (new Random().nextBoolean()) v.tiles.add(new BasicSpike(v, x + 12, 0, 0));
 			return 14;
 		}
+		public static int addTowers(View v, int x) {
+			v.tiles.add(new BasicBlock(v, x + 4, 1, 0));
+			v.tiles.add(new BasicSpike(v, x + 4, 0, 0));
+			v.tiles.add(new BasicBlock(v, x + 7, 0, 0));
+			v.tiles.add(new BasicBlock(v, x + 7, 1, 0));
+			if (new Random().nextBoolean()) v.tiles.add(new BasicBlock(v, x + 7, 2, 0));
+			if (new Random().nextBoolean()) {
+				v.tiles.add(new BasicBlock(v, x + 9, 0, 0));
+				v.tiles.add(new BasicBlock(v, x + 9, 1, 0));
+			} else {
+				v.tiles.add(new BasicBlock(v, x + 10, 0, 0));
+				v.tiles.add(new BasicBlock(v, x + 10, 1, 0));
+			}
+			return 11;
+		}
 		public static View generateLevel() {
 			View v = new View();
 			v.tiles.add(new BasicSpike(v, 4, 0, 0));
@@ -103,6 +118,7 @@ public class NetworkEvaluator {
 			structures.add((x) -> addSpike(v, x));
 			structures.add((x) -> addBlocks(v, x));
 			structures.add((x) -> addLongBlocks(v, x));
+			structures.add((x) -> addTowers(v, x));
 			Random r = new Random();
 			for (int i = 0; i < 10; i++) {
 				int width = structures.get(r.nextInt(structures.size())).applyAsInt(currentX);
@@ -233,7 +249,7 @@ public class NetworkEvaluator {
 			}
 			// Save the image
 			String fn = "network" + filename + ".png";
-			try { surface.writeToFile(fn); System.out.println("[Saved to file: " + fn + "]"); }
+			try { surface.writeToFile(fn); System.out.println("\t[Saved to file: " + fn + "]"); }
 			catch (IOException e) { e.printStackTrace(); }
 		}
 	}

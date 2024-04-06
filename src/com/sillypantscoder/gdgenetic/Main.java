@@ -50,7 +50,7 @@ public class Main {
 	}
 	public static void bar(double v) {
 		// ascii art :D
-		double spaces = (v - 97.5) * 10;
+		double spaces = (v - 88) * 5;
 		try {
 			System.out.println("-".repeat((int)(Math.round(spaces))) + "#");
 		} catch (IllegalArgumentException e) {

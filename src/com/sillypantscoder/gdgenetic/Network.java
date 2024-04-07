@@ -128,7 +128,7 @@ public class Network {
 		for (int i = 0; i < inputSize; i++) inputs.add(new InputNode());
 		RegularNode output = new RegularNode();
 		for (int i = 0; i < inputs.size(); i++) {
-			output.connections.add(new Connection(inputs.get(i), 0.0));
+			output.connections.add(new Connection(inputs.get(i), -1.0));
 		}
 		Network result = new Network(inputs, Utils.makeAL(new NetworkNode[] { output }));
 		return result;

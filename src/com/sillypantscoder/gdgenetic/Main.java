@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class Main {
+	public static final boolean SAVE_NN_FILES = false;
 	public static void main(String[] args) {
 		// Make our network
 		Network network = GeneticAlgorithm.createNetwork();
@@ -22,7 +23,7 @@ public class Main {
 			// Find average score for this iteration
 			System.out.println("Iterations done: " + i + "/" + totalIterations + " (" + neat(((double)(i)/totalIterations)*100.0) + "%)");
 			double score = NetworkEvaluator.evaluateNetworks(networkList);
-			System.out.print("\tAverage score is: " + neat(score));
+			System.out.print("\tAverage score is: " + neat(score) + "/" + (int)(NetworkEvaluator.LevelGeneration.generateLevel().getStageWidth() / 0.2));
 			System.out.println(" (" + (score>previousScore ? "+" : "-") + neat(Math.abs(score - previousScore)) + " from last; " +
 				(score>initialScore ? "+" : "-") + neat(Math.abs(score - initialScore)) + " from first)");
 			previousScore = score;
@@ -32,17 +33,19 @@ public class Main {
 			networkList = GeneticAlgorithm.runOneIteration(networkList);
 			// Find which network is best
 			Network best = GeneticAlgorithm.purgeNetworkList(networkList, 1).get(0);
-			String filename = "network" + (i + 1) + ".txt";
-			try {
-				BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
-				writer.write(best.save());
-				writer.close();
-				System.out.println("\t[Saved to file: " + filename + "]");
-			} catch (IOException e) {
-				System.out.println(best.save());
-				e.printStackTrace();
+			if (SAVE_NN_FILES) {
+				String filename = "network" + (i + 1) + ".txt";
+				try {
+					BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
+					writer.write(best.save());
+					writer.close();
+					System.out.println("\t[Saved to file: " + filename + "]");
+				} catch (IOException e) {
+					System.out.println(best.save());
+					e.printStackTrace();
+				}
 			}
-			NetworkEvaluator.VideoMaker.runSimulation(network, i + 1);
+			NetworkEvaluator.VideoMaker.runSimulation(best, i + 1);
 		}
 	}
 	public static double neat(double in) {

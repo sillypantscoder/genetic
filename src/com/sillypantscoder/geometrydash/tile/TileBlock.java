@@ -7,9 +7,9 @@ import java.util.Optional;
 import com.sillypantscoder.geometrydash.Player;
 import com.sillypantscoder.geometrydash.Rect;
 
-public class TileBlock extends Tile {
+public abstract class TileBlock extends Tile {
 	public TileBlock(View view, double x, double y, double rotation) {
-		super(view, x, y, 1, 1, rotation);
+		super(view, x, y, rotation);
 	}
 	public void collide(Player player) {
 		Player.PlayerBlockRects playerRects = new Player.PlayerBlockRects(player);

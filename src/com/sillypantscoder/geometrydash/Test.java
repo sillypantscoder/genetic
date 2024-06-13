@@ -1,12 +1,12 @@
 package com.sillypantscoder.geometrydash;
 
-import com.sillypantscoder.geometrydash.tile.TileBlock;
+import com.sillypantscoder.geometrydash.tile.BasicBlock;
 
 public class Test {
 	public static void main(String[] args) {
 		View v = new View();
 		// Add some tiles
-		v.tiles.add(new TileBlock(v, 5, 0, 0));
+		v.tiles.add(new BasicBlock(v, 5, 0, 0));
 		// Tick a bunch of times
 		for (int i = 0; i < 20; i++) tick(v);
 		v.startPressing();

@@ -13,7 +13,6 @@ import com.sillypantscoder.geometrydash.View;
 import com.sillypantscoder.geometrydash.tile.BasicBlock;
 import com.sillypantscoder.geometrydash.tile.BasicSpike;
 import com.sillypantscoder.geometrydash.tile.Tile;
-import com.sillypantscoder.geometrydash.tile.TileDeath;
 
 public class NetworkEvaluator {
 	public static void main(String[] args) {
@@ -110,15 +109,22 @@ public class NetworkEvaluator {
 			}
 			return 11;
 		}
+		public static int addCLGJump(View v, int x) { // can't let go jump (rotation doesn't work :/)
+			v.tiles.add(new BasicBlock(v, x + 4, 2, 0));
+			v.tiles.add(new BasicSpike(v, x + 4, 1, 0));
+			v.tiles.add(new BasicSpike(v, x + 6, 0, 0));
+			return 9;
+		}
 		public static View generateLevel() {
 			View v = new View();
-			v.tiles.add(new BasicSpike(v, 4, 0, 0));
-			int currentX = 8;
+			v.tiles.add(new BasicSpike(v, 2, 0, 0));
+			int currentX = 4;
 			ArrayList<IntUnaryOperator> structures = new ArrayList<IntUnaryOperator>();
 			structures.add((x) -> addSpike(v, x));
 			structures.add((x) -> addBlocks(v, x));
 			structures.add((x) -> addLongBlocks(v, x));
 			structures.add((x) -> addTowers(v, x));
+			structures.add((x) -> addCLGJump(v, x));
 			Random r = new Random();
 			for (int i = 0; i < 10; i++) {
 				int width = structures.get(r.nextInt(structures.size())).applyAsInt(currentX);
@@ -199,20 +205,33 @@ public class NetworkEvaluator {
 			Function<Double, Integer> cx = x -> (int)(Math.ceil(          (x + 2)           * Tile.RENDER_TILE_SIZE));
 			Function<Double, Integer> cn = n -> (int)(Math.ceil(             n              * Tile.RENDER_TILE_SIZE));
 			Function<Double, Integer> cy = y -> (int)(Math.ceil((view.getStageHeight() - y) * Tile.RENDER_TILE_SIZE));
-			Surface surface = new Surface(cx.apply(view.getStageWidth()), cy.apply(0.0) + 1, Color.WHITE);
+			Surface surface = new Surface(cx.apply(view.getStageWidth()), cy.apply(0.0) + 1, new Color(0, 125, 255));
 			for (int i = 0; i < view.tiles.size(); i++) {
 				Tile t = view.tiles.get(i);
-				Rect rect = t.getRect();
-				Color color = Color.BLACK;
-				if (t instanceof TileDeath) color = Color.RED;
-				// System.out.println(rect.x + " > " + crd.apply(rect.x));
-				surface.drawRect(color,
-					cx.apply(rect.x),
-					cy.apply(rect.y) - (cn.apply(rect.h) - 1),
-					cn.apply(rect.w),
-					cn.apply(rect.h));
+				Rect rect = new Rect(t.x, t.y, 1, 1);
+				Rect pxRect = new Rect(
+					cx.apply(rect.x), // x
+					cy.apply(rect.y) - (cn.apply(rect.h) - 1), // y
+					cn.apply(rect.w), // w
+					cn.apply(rect.h)); // h
+				t.drawForHuman(surface, pxRect);
+				// hitboxes for testing
+				/* if (t instanceof TileDeath) {
+					Rect rect2 = t.getRotatedRect();
+					surface.drawRect(Color.RED,
+						cx.apply(rect2.x),
+						cy.apply(rect2.y) - (cn.apply(rect2.h) - 1),
+						cn.apply(rect2.w),
+						cn.apply(rect2.h));
+				} */
 			}
+			int previousX = cx.apply(view.player.x + 0.5);
+			int previousY = cy.apply(view.player.y + 0.5);
+			ArrayList<Integer> clickX = new ArrayList<Integer>();
+			ArrayList<Integer> clickY = new ArrayList<Integer>();
+			boolean previousDecision = false;
 			// Run the simulation
+			int score = 0;
 			while (true) {
 				boolean decision = getNetworkDecision(view, network);
 				if (decision && !view.isPressing) {
@@ -221,10 +240,18 @@ public class NetworkEvaluator {
 					view.stopPressing();
 				}
 				view.timeTick();
+				score += decision ? 1 : 5;
 				// Draw
 				int px = cx.apply(view.player.x + 0.5);
 				int py = cy.apply(view.player.y + 0.5);
-				surface.set_at(px - 1, py, decision ? Color.ORANGE : Color.BLUE);
+				surface.drawLine(new Color(0, 255, 0), previousX - 1, previousY, px, py, 1);
+				if (decision && !previousDecision) {
+					clickX.add(px);
+					clickY.add(py);
+				}
+				previousX = px;
+				previousY = py;
+				previousDecision = decision;
 				// Finish
 				if (view.hasDied) {
 					// hitbox
@@ -247,10 +274,20 @@ public class NetworkEvaluator {
 					break;
 				}
 			}
+			// Add the clicks
+			for (int i = 0; i < clickX.size(); i++) {
+				int px = clickX.get(i);
+				int py = clickY.get(i);
+				surface.drawRect(new Color(255, 100, 0), px - 3, py - 3, 6, 6);
+			}
 			// Save the image
-			String fn = "network" + filename + ".png";
-			try { surface.writeToFile(fn); System.out.println("\t[Saved to file: " + fn + "]"); }
-			catch (IOException e) { e.printStackTrace(); }
+			if (score >= 900) {
+				String fn = "score" + score + "_network" + filename + ".png";
+				try { surface.writeToFile(fn); System.out.println("\t[Saved to file: " + fn + "]"); }
+				catch (IOException e) { e.printStackTrace(); }
+			} else {
+				System.out.println("\t[Score of " + score + " was too low]");
+			}
 		}
 	}
 	public static boolean getNetworkDecision(View view, Network network) {
@@ -260,24 +297,19 @@ public class NetworkEvaluator {
 	}
 	public static int runSimulation(Network network) {
 		View view = LevelGeneration.generateLevel();
-		int frames = 0;
+		int score = 0;
 		while (true) {
 			boolean decision = getNetworkDecision(view, network);
-			// System.out.print("Start frame " + (frames + 1) + "; y is: " + (Math.round(view.player.y * 100) / 100) + "; decision is: " + decision + "; result is:");
 			if (decision && !view.isPressing) {
 				view.startPressing();
 			} else {
 				view.stopPressing();
 			}
 			view.timeTick();
-			frames += 1;
-			// if (view.hasWon) System.out.print(" [won!]");
-			// else if (view.hasDied) System.out.print(" [died]");
-			// else System.out.print(" [survived]");
-			// System.out.println();
+			score += decision ? 1 : 5;
 			if (view.hasWon || view.hasDied) {
 				// The simulation is over
-				return frames;
+				return score;
 			}
 		}
 	}
@@ -289,11 +321,17 @@ public class NetworkEvaluator {
 		}
 		return (double)(totalScore) / n_trials;
 	}
-	public static double evaluateNetworks(ArrayList<Network> networks) {
+	public static double[] evaluateNetworks(ArrayList<Network> networks) {
 		double totalScore = 0;
+		double maxScore = 0;
 		for (int i = 0; i < networks.size(); i++) {
-			totalScore += evaluateNetwork(networks.get(i));
+			double score = evaluateNetwork(networks.get(i));
+			totalScore += score;
+			if (score > maxScore) maxScore = score;
 		}
-		return totalScore / networks.size();
+		return new double[] {
+			totalScore / networks.size(),
+			maxScore
+		};
 	}
 }

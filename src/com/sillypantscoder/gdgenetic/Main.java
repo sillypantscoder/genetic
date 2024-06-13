@@ -13,27 +13,31 @@ public class Main {
 		ArrayList<Network> networkList = new ArrayList<Network>();
 		networkList.add(network);
 		// Initial score
-		double initialScore = NetworkEvaluator.evaluateNetworks(networkList);
+		double initialScore = NetworkEvaluator.evaluateNetworks(networkList)[0];
 		System.out.println("Initial score is: " + initialScore);
 		bar(initialScore);
 		// Run a bunch of iterations
-		int totalIterations = 100;
+		int totalIterations = 30000;
 		double previousScore = initialScore;
 		for (int i = 0; i < totalIterations + 1; i++) {
 			// Find average score for this iteration
 			System.out.println("Iterations done: " + i + "/" + totalIterations + " (" + neat(((double)(i)/totalIterations)*100.0) + "%)");
-			double score = NetworkEvaluator.evaluateNetworks(networkList);
-			System.out.print("\tAverage score is: " + neat(score) + "/" + (int)(NetworkEvaluator.LevelGeneration.generateLevel().getStageWidth() / 0.2));
+			double[] scores = NetworkEvaluator.evaluateNetworks(networkList);
+			double score = scores[0];
+			int stagewidth = (int)(NetworkEvaluator.LevelGeneration.generateLevel().getStageWidth() / 0.2);
+			System.out.print("\tAverage score is: " + neat(score) + "/" + stagewidth);
 			System.out.println(" (" + (score>previousScore ? "+" : "-") + neat(Math.abs(score - previousScore)) + " from last; " +
 				(score>initialScore ? "+" : "-") + neat(Math.abs(score - initialScore)) + " from first)");
-			previousScore = score;
 			bar(score);
+			System.out.println("\tMaximum score is: " + neat(scores[1]) + "/" + stagewidth);
+			bar(scores[1]);
+			previousScore = score;
 			// Run the iteration
 			if (i == totalIterations) continue;
 			networkList = GeneticAlgorithm.runOneIteration(networkList);
 			// Find which network is best
 			Network best = GeneticAlgorithm.purgeNetworkList(networkList, 1).get(0);
-			if (SAVE_NN_FILES) {
+			if (SAVE_NN_FILES || i == totalIterations - 1 || (i + 1) % 500 == 0) {
 				String filename = "network" + (i + 1) + ".txt";
 				try {
 					BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
@@ -53,11 +57,11 @@ public class Main {
 	}
 	public static void bar(double v) {
 		// ascii art :D
-		double spaces = (v - 88) * 5;
+		double spaces = (v - 100) * 1;
 		try {
-			System.out.println("-".repeat((int)(Math.round(spaces))) + "#");
+			System.out.println("\t|" + "-".repeat((int)(Math.round(spaces))) + "#");
 		} catch (IllegalArgumentException e) {
-			System.out.println("<- " + Math.round(spaces));
+			System.out.println("\t| <- " + Math.round(spaces));
 		}
 	}
 }

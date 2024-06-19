@@ -15,4 +15,7 @@ public abstract class NetworkNode {
 		}
 		return result;
 	}
+	public int getOrder() {
+		return 0;
+	}
 }

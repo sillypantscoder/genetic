@@ -81,9 +81,26 @@ public class Surface {
 		g2d.drawRect(x, y, width, height);
 		g2d.dispose();
 	}
+	public void drawCircle(Color color, int cx, int cy, int r) {
+		Graphics2D g2d = img.createGraphics();
+		g2d.setColor(color);
+		g2d.fillOval(cx - r, cy - r, r*2, r*2);
+		g2d.dispose();
+	}
 	public void writeToFile(String filename) throws IOException {
 		File outputfile = new File(filename);
 		ImageIO.write(img, "png", outputfile);
+	}
+	public void save(String name) {
+		int n = 1;
+		while (new File(name + n + ".png").exists()) {
+			n += 1;
+		}
+		try {
+			this.writeToFile(name + n + ".png");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	public static Surface renderText(int size, String text, Color color) {
 		// Measure the text

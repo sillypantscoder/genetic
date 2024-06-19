@@ -1,6 +1,9 @@
 package com.sillypantscoder.gdgenetic;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.function.Function;
 
 public class Utils {
@@ -17,5 +20,71 @@ public class Utils {
 			result.add(converter.apply(list.get(i)));
 		}
 		return result;
+	}
+	public static ArrayList<RegularNode> getRegularNodes(ArrayList<NetworkNode> nodes) {
+		ArrayList<RegularNode> result = new ArrayList<RegularNode>();
+		for (int i = 0; i < nodes.size(); i++) {
+			if (nodes.get(i) instanceof RegularNode rnode) {
+				result.add(rnode);
+			}
+		}
+		return result;
+	}
+	public static String join(String sep, Object[] o) {
+		ArrayList<String> results = new ArrayList<String>();
+		for (int i = 0; i < o.length; i++) {
+			results.add(o[i].toString());
+		}
+		return String.join(sep, results);
+	}
+	public static void log(Object... o) {
+		try {
+			FileWriter writer = new FileWriter("log.txt", true);
+			writer.write(join(" ", o) + "\n");
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	public static void logNetwork(Network network) {
+		String result = "Network:\n\tInputs:";
+		for (int i = 0; i < network.inputs.size(); i++) {
+			result += "\n\t\t- " + network.inputs.get(i).toString();
+		}
+		result += "\n\tOutputs:";
+		for (int i = 0; i < network.outputs.size(); i++) {
+			result += logNode(network.outputs.get(i));
+		}
+		log(result);
+	}
+	public static String logNode(NetworkNode node) {
+		String nodeResult = "\n\t- " + node.toString();
+		if (node instanceof RegularNode rnode) {
+			for (int i = 0; i < rnode.connections.size(); i++) {
+				nodeResult += "\n\t\tConnection (" + rnode.connections.get(i).value + "):";
+				try {
+					nodeResult += logNode(rnode.connections.get(i).connection).replace("\n", "\n\t");
+				} catch (StackOverflowError e) {
+					return "";
+				}
+			}
+		}
+		return nodeResult;
+	}
+	public static int getNextFreeOrder(Collection<? extends NetworkNode> nodes) {
+		int order = 1;
+		while (true) {
+			boolean found = false;
+			ArrayList<RegularNode> rnodes = Utils.getRegularNodes(new ArrayList<NetworkNode>(nodes));
+			for (int i = 0; i < rnodes.size(); i++) {
+				if (rnodes.get(i).order == order) {
+					found = true;
+					break;
+				}
+			}
+			if (!found) break;
+			order++;
+		}
+		return order;
 	}
 }

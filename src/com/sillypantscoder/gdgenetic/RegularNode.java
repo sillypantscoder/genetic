@@ -5,11 +5,14 @@ import java.util.HashSet;
 
 public class RegularNode extends NetworkNode {
 	public ArrayList<Connection> connections;
-	public RegularNode() {
+	public int order;
+	public RegularNode(int order) {
 		connections = new ArrayList<Connection>();
+		this.order = order;
 	}
-	public RegularNode(ArrayList<Connection> connections) {
+	public RegularNode(ArrayList<Connection> connections, int order) {
 		this.connections = connections;
+		this.order = order;
 	}
 	public double getValue() {
 		ArrayList<Double> values = Utils.map(connections, e -> e.getValue());
@@ -27,5 +30,8 @@ public class RegularNode extends NetworkNode {
 		// Remove duplicates
 		HashSet<Connection> set = new HashSet<Connection>(connections);
 		return set;
+	}
+	public int getOrder() {
+		return order;
 	}
 }

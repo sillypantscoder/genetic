@@ -281,18 +281,19 @@ public class NetworkEvaluator {
 				surface.drawRect(new Color(255, 100, 0), px - 3, py - 3, 6, 6);
 			}
 			// Save the image
-			if (score >= 900) {
-				String fn = "score" + score + "_network" + filename + ".png";
-				try { surface.writeToFile(fn); System.out.println("\t[Saved to file: " + fn + "]"); }
+			if (score >= 250) {
+				String fn = "outputs/score" + score + "_network" + filename + ".png";
+				fn = "outputs/network" + filename + "_score" + score + ".png";
+				try { surface.writeToFile(fn); System.out.println("\t[Video saved to file: " + fn + "]"); }
 				catch (IOException e) { e.printStackTrace(); }
 			} else {
-				System.out.println("\t[Score of " + score + " was too low]");
+				System.out.println("\t[Score of " + score + " was too low to make video]");
 			}
 		}
 	}
 	public static boolean getNetworkDecision(View view, Network network) {
-		double output = network.evaluate(Rendering.getNetworkInputs(view)).get(0);
-		double probability = (output + 1) / 2;
+		double probability = network.evaluate(Rendering.getNetworkInputs(view)).get(0);
+		// probability is on a scale from -1 to 1
 		return Math.random() < probability;
 	}
 	public static int runSimulation(Network network) {

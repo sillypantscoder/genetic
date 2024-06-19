@@ -4,13 +4,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Random;
 
 public class GeneticAlgorithm {
-	public static final int N_MODIFICATIONS_PER_ALTER = 10;
-	public static final int N_SPLITS_PER_NETWORK = 50;
-	public static final int N_BEST_NETWORKS = 10;
+	public static final int N_MODIFICATIONS_PER_ALTER = 5;
+	public static final int N_SPLITS_PER_NETWORK = 80;
+	public static final int N_BEST_NETWORKS = 15;
 	public static void main(String[] args) {
 		// Make a network
 		Network network = createNetwork();
@@ -31,28 +30,29 @@ public class GeneticAlgorithm {
 		return Network.createZeroLayer(5 * 5 * 3); // 5: Height     5: Width    3: Pixel depth
 	}
 	public static Network alterNetwork(Network input) {
-		Network output = input.copy();
-		// Get a list of all the connections
-		HashSet<Connection> connections = output.getConnections();
+		Network currentNetwork = input.copy();
+		// output.prune();
+		RegularNode newNode = new RegularNode(1);
+		// Get a list of all the nodes
+		ArrayList<NetworkNode> nodes = new ArrayList<NetworkNode>(currentNetwork.getNodes());
+		nodes.add(newNode);
 		// Randomly select some
-		ArrayList<Connection> connectionList = new ArrayList<>(connections);
 		Random r = new Random();
 		for (int i = 0; i < N_MODIFICATIONS_PER_ALTER; i++) {
-			// For each randomly chosen connection:
-			int randomIndex = r.nextInt(connectionList.size());
-			Connection chosen = connectionList.get(randomIndex);
-			// Alter it
-			if (r.nextBoolean()) {
-				chosen.value += Math.random();
-			} else {
-				chosen.value -= Math.random();
-			}
-			// Make sure the resulting value is within the valid range
-			if (chosen.value >= 1) chosen.value = 1;
-			if (chosen.value <= -1) chosen.value = -1;
+			// Select a random regular node (this will be the connection target)
+			ArrayList<RegularNode> regularNodes = Utils.getRegularNodes(nodes);
+			int randomIndex = r.nextInt(regularNodes.size());
+			RegularNode chosen = regularNodes.get(randomIndex);
+			// Find another random node (this will be the connection source)
+			int randomIndex2 = r.nextInt(nodes.size());
+			NetworkNode chosen2 = nodes.get(randomIndex2);
+			// Make sure we are not creating a loop
+			if (chosen.order <= chosen2.getOrder()) continue;
+			// Connect the two nodes
+			chosen.connections.add(new Connection(chosen2, r.nextBoolean() ? 1 : -1));
 		}
 		// Finish
-		return output;
+		return currentNetwork;
 	}
 	public static ArrayList<Network> splitNetwork(Network input) {
 		ArrayList<Network> results = new ArrayList<Network>();

@@ -17,7 +17,7 @@ public class Main {
 		System.out.println("Initial score is: " + initialScore);
 		bar(initialScore);
 		// Run a bunch of iterations
-		int totalIterations = 30000;
+		int totalIterations = 1000;
 		double previousScore = initialScore;
 		for (int i = 0; i < totalIterations + 1; i++) {
 			// Find average score for this iteration
@@ -37,17 +37,18 @@ public class Main {
 			networkList = GeneticAlgorithm.runOneIteration(networkList);
 			// Find which network is best
 			Network best = GeneticAlgorithm.purgeNetworkList(networkList, 1).get(0);
-			if (SAVE_NN_FILES || i == totalIterations - 1 || (i + 1) % 500 == 0) {
-				String filename = "network" + (i + 1) + ".txt";
+			if (SAVE_NN_FILES || i == totalIterations - 1 || (i + 1) % 50 == 0) {
+				String filename = "outputs/network" + (i + 1) + ".txt";
 				try {
 					BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
 					writer.write(best.save());
 					writer.close();
-					System.out.println("\t[Saved to file: " + filename + "]");
+					System.out.println("\t[AI saved to file: " + filename + "]");
 				} catch (IOException e) {
 					System.out.println(best.save());
 					e.printStackTrace();
 				}
+				best.visualize(new NetworkNode[0]).save(filename.substring(0, filename.length() - 3));
 			}
 			NetworkEvaluator.VideoMaker.runSimulation(best, i + 1);
 		}

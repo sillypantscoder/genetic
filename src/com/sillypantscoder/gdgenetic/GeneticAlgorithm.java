@@ -7,10 +7,10 @@ import java.util.HashMap;
 import java.util.Random;
 
 public class GeneticAlgorithm {
-	public static final int N_MODIFICATIONS_PER_ALTER = 4;
-	public static final int N_SPLITS_PER_NETWORK = 65;
-	public static final int N_BEST_NETWORKS = 5;
-	public static final double N_CONNECTIONS_DELETED = 0.1;
+	public static final int N_MODIFICATIONS_PER_ALTER = 2;
+	public static final int N_SPLITS_PER_NETWORK = 60;
+	public static final int N_BEST_NETWORKS = 10;
+	public static final double N_CONNECTIONS_DELETED = 0.05;
 	public static void main(String[] args) {
 		// Make a network
 		Network network = createNetwork();
@@ -78,12 +78,9 @@ public class GeneticAlgorithm {
 		return results;
 	}
 	public static ArrayList<Network> purgeNetworkList(ArrayList<Network> networks, int number) {
-		HashMap<Network, Double> scores = new HashMap<Network, Double>();
-		for (int i = 0; i < networks.size(); i++) {
-			double score = NetworkEvaluator.evaluateNetwork(networks.get(i));
-			scores.put(networks.get(i), score);
-			if (i > 0 && i % 100 == 0) System.out.print(" [@" + i + "]");
-		}
+		ThreadedNetworkEvaluator evaluator = new ThreadedNetworkEvaluator(networks);
+		evaluator.executeThreads(true);
+		HashMap<Network, Double> scores = evaluator.results;
 		ArrayList<Network> sorted = new ArrayList<Network>(networks);
 		sorted.sort(new Comparator<Network>() {
 			@Override
@@ -105,10 +102,10 @@ public class GeneticAlgorithm {
 		System.out.print("\t[" + networks.size());
 		// 1. Randomly alter all the networks
 		ArrayList<Network> splitList = splitNetworkList(networks);
-		System.out.print(" -> " + splitList.size());
+		System.out.println(" -> " + splitList.size() + "...");
 		// 2. Evaluate the networks
 		ArrayList<Network> goodNetworks = purgeNetworkList(splitList, N_BEST_NETWORKS);
-		System.out.println(" -> " + goodNetworks.size() + "]");
+		System.out.println("\n\t... -> " + goodNetworks.size() + "]");
 		return goodNetworks;
 	}
 }

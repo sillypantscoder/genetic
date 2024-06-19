@@ -325,10 +325,12 @@ public class NetworkEvaluator {
 		return (double)(totalScore) / n_trials;
 	}
 	public static double[] evaluateNetworks(ArrayList<Network> networks) {
+		ThreadedNetworkEvaluator evaluator = new ThreadedNetworkEvaluator(networks);
+		evaluator.executeThreads(false);
 		double totalScore = 0;
-		double maxScore = 0;
+		double maxScore = Double.MIN_VALUE;
 		for (int i = 0; i < networks.size(); i++) {
-			double score = evaluateNetwork(networks.get(i));
+			double score = evaluator.results.get(networks.get(i));
 			totalScore += score;
 			if (score > maxScore) maxScore = score;
 		}

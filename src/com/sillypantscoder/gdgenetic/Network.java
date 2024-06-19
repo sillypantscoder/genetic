@@ -155,12 +155,16 @@ public class Network {
 		// Find all the layers
 		ArrayList<ArrayList<NetworkNode>> layers = new ArrayList<ArrayList<NetworkNode>>();
 		// Input nodes
-		ArrayList<NetworkNode> inputNodes = new ArrayList<NetworkNode>();
-		inputNodes.addAll(this.inputs);
-		layers.add(inputNodes);
+		for (var i = 0; i < this.inputs.size(); i += 50) {
+			ArrayList<NetworkNode> inputNodes = new ArrayList<NetworkNode>();
+			for (var j = i; j < i + 50; j++) {
+				inputNodes.add(this.inputs.get(j));
+			}
+			layers.add(inputNodes);
+		}
 		// All other nodes
 		ArrayList<NetworkNode> regularNodes = new ArrayList<NetworkNode>(this.getNodes());
-		regularNodes.removeAll(inputNodes);
+		regularNodes.removeAll(this.inputs);
 		int maxOrder = 1; for (int i = 0; i < regularNodes.size(); i++) { maxOrder = Math.max(maxOrder, regularNodes.get(i).getOrder()); }
 		for (int i = 1; i <= maxOrder; i++) {
 			ArrayList<NetworkNode> layer = new ArrayList<NetworkNode>();
@@ -177,12 +181,12 @@ public class Network {
 			maxNodes = Math.max(maxNodes, layers.get(i).size());
 		}
 		// Create the surface
-		Surface s = new Surface((layers.size() * 140) + 10, (maxNodes * 15) + 10, Color.WHITE);
+		Surface s = new Surface((layers.size() * 70) + 10, (maxNodes * 15) + 10, Color.WHITE);
 		// Find where all the nodes are
 		HashMap<NetworkNode, Integer> nodeXs = new HashMap<NetworkNode, Integer>();
 		HashMap<NetworkNode, Integer> nodeYs = new HashMap<NetworkNode, Integer>();
 		for (int layer = 0; layer < layers.size(); layer++) {
-			int x = (layer * 140) + 20;
+			int x = (layer * 70) + 20;
 			for (int c = 0; c < layers.get(layer).size(); c++) {
 				double frac = (double)(c + 1) / (layers.get(layer).size() + 2);
 				int y = (int)((frac * maxNodes) * 15) + 10;

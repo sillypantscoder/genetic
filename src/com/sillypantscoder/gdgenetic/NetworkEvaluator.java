@@ -23,7 +23,7 @@ public class NetworkEvaluator {
 			for (int i = 0; i < v.tiles.size(); i++) {
 				Tile tile = v.tiles.get(i);
 				if (tile.x == x && tile.y == y) {
-					int a = tile.drawForNetwork();
+					int a = tile.drawForNetwork()[1][1];
 					return a;
 				}
 			}
@@ -141,6 +141,8 @@ public class NetworkEvaluator {
 			}
 			int blockX = (int)(Math.floor(x));
 			int blockY = (int)(Math.floor(y));
+			int pixelX = (int)(Math.floor(x - blockX) * 4);
+			int pixelY = (int)(Math.floor(x - blockX) * 4);
 			Tile tile = null;
 			for (int i = 0; i < view.tiles.size(); i++) {
 				Tile t = view.tiles.get(i);
@@ -152,8 +154,8 @@ public class NetworkEvaluator {
 				// Air
 				return 0;
 			}
-			int pixel = tile.drawForNetwork();
-			// if (pixel==2)System.out.println("[" + x + ", " + y + " => " + pixelX + ", " + pixelY + "]");
+			int[][] block = tile.drawForNetwork();
+			int pixel = block[pixelY][pixelX];
 			return pixel;
 		}
 		public static ArrayList<Double> get1HPixel(View view, double x, double y) {
@@ -185,9 +187,9 @@ public class NetworkEvaluator {
 			ArrayList<Double> inputs = new ArrayList<Double>();
 			double cameraX = getCameraX(view);
 			double cameraY = getCameraY(view);
-			for (int y = 0; y < 5; y++) {
-				for (int x = 0; x < 5; x++) {
-					ArrayList<Double> pixel = get1HPixel(view, (x / 1.0) + cameraX, (y / 1.0) + cameraY);
+			for (int y = 0; y < 5 * 4; y++) {
+				for (int x = 0; x < 5 * 4; x++) {
+					ArrayList<Double> pixel = get1HPixel(view, (x / 4.0) + cameraX, (y / 4.0) + cameraY);
 					inputs.addAll(pixel);
 				}
 			}
@@ -240,7 +242,7 @@ public class NetworkEvaluator {
 					view.stopPressing();
 				}
 				view.timeTick();
-				score += decision ? 1 : 5;
+				score += decision ? 1 : 10;
 				// Draw
 				int px = cx.apply(view.player.x + 0.5);
 				int py = cy.apply(view.player.y + 0.5);
@@ -281,9 +283,9 @@ public class NetworkEvaluator {
 				surface.drawRect(new Color(255, 100, 0), px - 3, py - 3, 6, 6);
 			}
 			// Save the image
-			if (score >= 250) {
+			if (score >= 500) {
 				String fn = "outputs/score" + score + "_network" + filename + ".png";
-				fn = "outputs/network" + filename + "_score" + score + ".png";
+				// fn = "outputs/network" + filename + "_score" + score + ".png";
 				try { surface.writeToFile(fn); System.out.println("\t[Video saved to file: " + fn + "]"); }
 				catch (IOException e) { e.printStackTrace(); }
 			} else {
@@ -307,7 +309,7 @@ public class NetworkEvaluator {
 				view.stopPressing();
 			}
 			view.timeTick();
-			score += decision ? 1 : 5;
+			score += decision ? 1 : 10;
 			if (view.hasWon || view.hasDied) {
 				// The simulation is over
 				return score;

@@ -23,8 +23,13 @@ public abstract class Tile extends SceneItem {
 		super.tick(amount);
 	}
 	public void collide(Player player) {}
-	public int drawForNetwork() {
-		return 0;
+	public int[][] drawForNetwork() {
+		return new int[][] {
+			new int[] { 0, 0, 0, 0 },
+			new int[] { 0, 0, 0, 0 },
+			new int[] { 0, 0, 0, 0 },
+			new int[] { 0, 0, 0, 0 }
+		};
 	}
 	public abstract void drawForHuman(Surface surface, Rect pxRect);
 }

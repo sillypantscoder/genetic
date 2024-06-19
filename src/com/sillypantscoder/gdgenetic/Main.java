@@ -6,7 +6,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class Main {
-	public static final boolean SAVE_NN_FILES = false;
+	public static final boolean SAVE_NN_FILES = true;
+	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		// Make our network
 		Network network = GeneticAlgorithm.createNetwork();
@@ -37,7 +38,7 @@ public class Main {
 			networkList = GeneticAlgorithm.runOneIteration(networkList);
 			// Find which network is best
 			Network best = GeneticAlgorithm.purgeNetworkList(networkList, 1).get(0);
-			if (SAVE_NN_FILES || i == totalIterations - 1 || (i + 1) % 50 == 0) {
+			if (SAVE_NN_FILES || i == totalIterations - 1 || (i + 1) % 25 == 0) {
 				String filename = "outputs/network" + (i + 1) + ".txt";
 				try {
 					BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
@@ -50,6 +51,8 @@ public class Main {
 				}
 				best.visualize(new NetworkNode[0]).save(filename.substring(0, filename.length() - 3));
 			}
+			NetworkEvaluator.VideoMaker.runSimulation(best, i + 1);
+			NetworkEvaluator.VideoMaker.runSimulation(best, i + 1);
 			NetworkEvaluator.VideoMaker.runSimulation(best, i + 1);
 		}
 	}

@@ -22,8 +22,13 @@ public class BasicBlock extends TileBlock {
 	<rect x="1" y="1" width="18" height="18" fill="url(#mainGradient)" />
 </svg>`
 	} */
-	public int drawForNetwork() {
-		return 1;
+	public int[][] drawForNetwork() {
+		return new int[][] {
+			new int[] { 1, 1, 1, 1 },
+			new int[] { 1, 1, 1, 1 },
+			new int[] { 1, 1, 1, 1 },
+			new int[] { 1, 1, 1, 1 }
+		};
 	}
 	public void drawForHuman(Surface surface, Rect pxRect) {
 		Surface s = new Surface((int)(pxRect.w), (int)(pxRect.h), Color.WHITE);

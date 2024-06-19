@@ -7,9 +7,10 @@ import java.util.HashMap;
 import java.util.Random;
 
 public class GeneticAlgorithm {
-	public static final int N_MODIFICATIONS_PER_ALTER = 5;
-	public static final int N_SPLITS_PER_NETWORK = 80;
-	public static final int N_BEST_NETWORKS = 15;
+	public static final int N_MODIFICATIONS_PER_ALTER = 4;
+	public static final int N_SPLITS_PER_NETWORK = 65;
+	public static final int N_BEST_NETWORKS = 5;
+	public static final double N_CONNECTIONS_DELETED = 0.1;
 	public static void main(String[] args) {
 		// Make a network
 		Network network = createNetwork();
@@ -27,17 +28,24 @@ public class GeneticAlgorithm {
 	}
 	public static Network createNetwork() {
 		// Create a compatible network.
-		return Network.createZeroLayer(5 * 5 * 3); // 5: Height     5: Width    3: Pixel depth
+		return Network.createZeroLayer(5 * 5 * 4 * 4 * 3); // 5: Height  5: Width  4: Block height  4: Block width  3: Pixel depth
 	}
 	public static Network alterNetwork(Network input) {
 		Network currentNetwork = input.copy();
-		// output.prune();
+		Random r = new Random();
+		// Create a new node
 		RegularNode newNode = new RegularNode(1);
+		// Get rid of some random connections
+		ArrayList<Connection> connections = new ArrayList<Connection>(currentNetwork.getConnections());
+		for (int i = 0; i <= (N_CONNECTIONS_DELETED * connections.size()) - 1; i++) {
+			int randomIndex = r.nextInt(connections.size());
+			Connection chosen = connections.get(randomIndex);
+			chosen.remove(currentNetwork);
+		}
 		// Get a list of all the nodes
 		ArrayList<NetworkNode> nodes = new ArrayList<NetworkNode>(currentNetwork.getNodes());
-		nodes.add(newNode);
+		nodes.add(newNode); nodes.add(newNode);
 		// Randomly select some
-		Random r = new Random();
 		for (int i = 0; i < N_MODIFICATIONS_PER_ALTER; i++) {
 			// Select a random regular node (this will be the connection target)
 			ArrayList<RegularNode> regularNodes = Utils.getRegularNodes(nodes);

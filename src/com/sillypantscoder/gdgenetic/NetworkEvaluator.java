@@ -242,7 +242,7 @@ public class NetworkEvaluator {
 					view.stopPressing();
 				}
 				view.timeTick();
-				score += decision ? 1 : 10;
+				score += decision ? 0 : 1;
 				// Draw
 				int px = cx.apply(view.player.x + 0.5);
 				int py = cy.apply(view.player.y + 0.5);
@@ -283,7 +283,7 @@ public class NetworkEvaluator {
 				surface.drawRect(new Color(255, 100, 0), px - 3, py - 3, 6, 6);
 			}
 			// Save the image
-			if (score >= 500) {
+			if (score >= 70) {
 				String fn = "outputs/score" + score + "_network" + filename + ".png";
 				// fn = "outputs/network" + filename + "_score" + score + ".png";
 				try { surface.writeToFile(fn); System.out.println("\t[Video saved to file: " + fn + "]"); }
@@ -309,7 +309,7 @@ public class NetworkEvaluator {
 				view.stopPressing();
 			}
 			view.timeTick();
-			score += decision ? 1 : 10;
+			score += decision ? 0 : 1;
 			if (view.hasWon || view.hasDied) {
 				// The simulation is over
 				return score;

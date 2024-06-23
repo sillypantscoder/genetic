@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.Random;
 
 public class GeneticAlgorithm {
 	public static final int N_MODIFICATIONS_PER_ALTER = 2;
-	public static final int N_SPLITS_PER_NETWORK = 60;
-	public static final int N_BEST_NETWORKS = 10;
-	public static final double N_CONNECTIONS_DELETED = 0.05;
+	public static final int N_SPLITS_PER_NETWORK = 40;
+	public static final int N_BEST_NETWORKS = 7;
 	public static void main(String[] args) {
 		// Make a network
 		Network network = createNetwork();
@@ -35,13 +35,6 @@ public class GeneticAlgorithm {
 		Random r = new Random();
 		// Create a new node
 		RegularNode newNode = new RegularNode(1);
-		// Get rid of some random connections
-		ArrayList<Connection> connections = new ArrayList<Connection>(currentNetwork.getConnections());
-		for (int i = 0; i <= (N_CONNECTIONS_DELETED * connections.size()) - 1; i++) {
-			int randomIndex = r.nextInt(connections.size());
-			Connection chosen = connections.get(randomIndex);
-			chosen.remove(currentNetwork);
-		}
 		// Get a list of all the nodes
 		ArrayList<NetworkNode> nodes = new ArrayList<NetworkNode>(currentNetwork.getNodes());
 		nodes.add(newNode); nodes.add(newNode);
@@ -62,11 +55,26 @@ public class GeneticAlgorithm {
 		// Finish
 		return currentNetwork;
 	}
+	public static Optional<Network> alterNetwork2(Network input) {
+		Network currentNetwork = input.copy();
+		Random r = new Random();
+		// Get rid of some random connections
+		ArrayList<Connection> connections = new ArrayList<Connection>(currentNetwork.getConnections());
+		if (connections.size() <= 5) return Optional.empty();
+		for (int i = 0; i < 5; i++) {
+			int randomIndex = r.nextInt(connections.size());
+			Connection chosen = connections.get(randomIndex);
+			chosen.remove(currentNetwork);
+		}
+		// Finish
+		return Optional.ofNullable(currentNetwork);
+	}
 	public static ArrayList<Network> splitNetwork(Network input) {
 		ArrayList<Network> results = new ArrayList<Network>();
 		results.add(input);
 		for (int i = 0; i < N_SPLITS_PER_NETWORK; i++) {
 			results.add(alterNetwork(input));
+			alterNetwork2(input).ifPresent((v) -> results.add(v));
 		}
 		return results;
 	}

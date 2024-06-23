@@ -2,6 +2,8 @@ package com.sillypantscoder.gdgenetic;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.function.Function;
@@ -86,5 +88,12 @@ public class Utils {
 			order++;
 		}
 		return order;
+	}
+	public static void logError(Throwable e) {
+		StringWriter sw = new StringWriter();
+		PrintWriter pw = new PrintWriter(sw);
+		e.printStackTrace(pw);
+		String stack = sw.toString();
+		log("Stack Trace:\n" + stack);
 	}
 }

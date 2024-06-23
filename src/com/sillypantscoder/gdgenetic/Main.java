@@ -35,7 +35,12 @@ public class Main {
 			previousScore = score;
 			// Run the iteration
 			if (i == totalIterations) continue;
-			networkList = GeneticAlgorithm.runOneIteration(networkList);
+			try {
+				networkList = GeneticAlgorithm.runOneIteration(networkList);
+			} catch (Exception e) {
+				Utils.log("ERROR!!!!! Iteration " + (i + 1) + "failed!");
+				Utils.logError(e);
+			}
 			// Find which network is best
 			Network best = GeneticAlgorithm.purgeNetworkList(networkList, 1).get(0);
 			if (SAVE_NN_FILES || i == totalIterations - 1 || (i + 1) % 25 == 0) {

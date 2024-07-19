@@ -87,6 +87,13 @@ public class Surface {
 		g2d.fillOval(cx - r, cy - r, r*2, r*2);
 		g2d.dispose();
 	}
+	public void drawCircle(Color color, int cx, int cy, int r, int lineWidth) {
+		Graphics2D g2d = img.createGraphics();
+		g2d.setColor(color);
+		g2d.setStroke(new BasicStroke(lineWidth));
+		g2d.drawOval(cx - r, cy - r, r*2, r*2);
+		g2d.dispose();
+	}
 	public void writeToFile(String filename) throws IOException {
 		File outputfile = new File(filename);
 		ImageIO.write(img, "png", outputfile);

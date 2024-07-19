@@ -1,6 +1,5 @@
 package com.sillypantscoder.geometrydash.tile;
 
-import java.awt.Color;
 import java.util.Optional;
 
 import com.sillypantscoder.geometrydash.Player;
@@ -12,7 +11,6 @@ public abstract class Orb extends Tile {
 	public Orb(View view, double x, double y, double rotation) {
 		super(view, x, y, rotation);
 	}
-	public abstract Color getColor();
 	public void collide(Player player) {
 		if (this.activated) return;
 		Rect playerRect = player.getGeneralRect();

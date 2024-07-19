@@ -6,15 +6,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class Main {
-	public static final boolean SAVE_NN_FILES = true;
-	@SuppressWarnings("unused")
+	public static final boolean SAVE_NN_FILES = false;
 	public static void main(String[] args) {
 		// Make our network
 		Network network = GeneticAlgorithm.createNetwork();
 		ArrayList<Network> networkList = new ArrayList<Network>();
 		networkList.add(network);
 		// Initial score
-		double initialScore = NetworkEvaluator.evaluateNetworks(networkList)[0];
+		double initialScore = NetworkEvaluator.evaluateNetworks(networkList, 0)[0];
 		System.out.println("Initial score is: " + initialScore);
 		bar(initialScore);
 		// Run a bunch of iterations
@@ -23,7 +22,7 @@ public class Main {
 		for (int i = 0; i < totalIterations + 1; i++) {
 			// Find average score for this iteration
 			System.out.println("Iterations done: " + i + "/" + totalIterations + " (" + neat(((double)(i)/totalIterations)*100.0) + "%)");
-			double[] scores = NetworkEvaluator.evaluateNetworks(networkList);
+			double[] scores = NetworkEvaluator.evaluateNetworks(networkList, i + 1);
 			double score = scores[0];
 			int stagewidth = (int)(NetworkEvaluator.LevelGeneration.generateLevel().getStageWidth() / 0.2);
 			System.out.print("\tAverage score is: " + neat(score) + "/" + stagewidth);
@@ -36,13 +35,13 @@ public class Main {
 			// Run the iteration
 			if (i == totalIterations) continue;
 			try {
-				networkList = GeneticAlgorithm.runOneIteration(networkList);
+				networkList = GeneticAlgorithm.runOneIteration(networkList, i + 1);
 			} catch (Exception e) {
-				Utils.log("ERROR!!!!! Iteration " + (i + 1) + "failed!");
+				Utils.log("ERROR!!!!! Iteration " + (i + 1) + " failed!");
 				Utils.logError(e);
 			}
 			// Find which network is best
-			Network best = GeneticAlgorithm.purgeNetworkList(networkList, 1).get(0);
+			Network best = GeneticAlgorithm.purgeNetworkList(networkList, 1, i + 1).get(0);
 			if (SAVE_NN_FILES || i == totalIterations - 1 || (i + 1) % 25 == 0) {
 				String filename = "outputs/network" + (i + 1) + ".txt";
 				try {
@@ -51,7 +50,7 @@ public class Main {
 					writer.close();
 					System.out.println("\t[AI saved to file: " + filename + "]");
 				} catch (IOException e) {
-					System.out.println(best.save());
+					System.out.println("WARNING!!! AI FAILED TO SAVE:");
 					e.printStackTrace();
 				}
 				best.visualize(new NetworkNode[0]).save(filename.substring(0, filename.length() - 3));

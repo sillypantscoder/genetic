@@ -1,7 +1,6 @@
 package com.sillypantscoder.gdgenetic;
 
 import java.awt.Color;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.function.BinaryOperator;
@@ -12,9 +11,14 @@ import com.sillypantscoder.geometrydash.Rect;
 import com.sillypantscoder.geometrydash.View;
 import com.sillypantscoder.geometrydash.tile.BasicBlock;
 import com.sillypantscoder.geometrydash.tile.BasicSpike;
+import com.sillypantscoder.geometrydash.tile.JumpOrb;
 import com.sillypantscoder.geometrydash.tile.Tile;
 
 public class NetworkEvaluator {
+	public static final int POINTS_PER_FRAME = 1;
+	public static final int JUMP_PENALTY = -3;
+	public static final int POINTLESS_JUMP_PENALTY = -3;
+	public static final int VIDEO_MIN_OUTPUT_SCORE = 50;
 	public static void main(String[] args) {
 		// Level Generation
 		View v = LevelGeneration.generateLevel();
@@ -49,7 +53,7 @@ public class NetworkEvaluator {
 		System.out.println("camera: (" + Rendering.getCameraX(v) + ", " + Rendering.getCameraY(v) + ")");
 		// Simulation
 		Network network = Network.createZeroLayer(5 * 5 * 3);
-		double score = evaluateNetwork(network);
+		double score = evaluateNetwork(network, 0);
 		System.out.println(score);
 	}
 	public static class LevelGeneration {
@@ -107,13 +111,41 @@ public class NetworkEvaluator {
 				v.tiles.add(new BasicBlock(v, x + 10, 0, 0));
 				v.tiles.add(new BasicBlock(v, x + 10, 1, 0));
 			}
-			return 11;
+			return 13;
 		}
 		public static int addCLGJump(View v, int x) { // can't let go jump (rotation doesn't work :/)
-			v.tiles.add(new BasicBlock(v, x + 4, 2, 0));
-			v.tiles.add(new BasicSpike(v, x + 4, 1, 0));
+			v.tiles.add(new BasicBlock(v, x + 4, 1, 0));
+			v.tiles.add(new BasicSpike(v, x + 4, 2, 0));
 			v.tiles.add(new BasicSpike(v, x + 6, 0, 0));
 			return 9;
+		}
+		public static int addOrb(View v, int x) {
+			v.tiles.add(new JumpOrb(v, x + 5 + Math.round(Math.random()), 1 + Math.round(Math.random()), 0));
+			v.tiles.add(new BasicSpike(v, x + 4, 0, 0));
+			v.tiles.add(new BasicSpike(v, x + 5, 0, 0));
+			v.tiles.add(new BasicSpike(v, x + 6, 0, 0));
+			v.tiles.add(new BasicSpike(v, x + 7, 0, 0));
+			return 9;
+		}
+		public static int addOrbTower(View v, int x) {
+			v.tiles.add(new JumpOrb(v, x + 4, 1, 0));
+			v.tiles.add(new BasicBlock(v, x + 7, 0, 0));
+			v.tiles.add(new BasicBlock(v, x + 7, 1, 0));
+			v.tiles.add(new BasicBlock(v, x + 7, 2, 0));
+			return 10;
+		}
+		public static int addTowerOrb(View v, int x) {
+			v.tiles.add(new JumpOrb(v, x + 9, 1, 0));
+			v.tiles.add(new BasicBlock(v, x + 4, 0, 0));
+			v.tiles.add(new BasicBlock(v, x + 4, 1, 0));
+			v.tiles.add(new BasicSpike(v, x + 5, 0, 0));
+			v.tiles.add(new BasicSpike(v, x + 6, 0, 0));
+			v.tiles.add(new BasicSpike(v, x + 7, 0, 0));
+			v.tiles.add(new BasicSpike(v, x + 8, 0, 0));
+			v.tiles.add(new BasicSpike(v, x + 9, 0, 0));
+			v.tiles.add(new BasicSpike(v, x + 10, 0, 0));
+			v.tiles.add(new BasicSpike(v, x + 11, 0, 0));
+			return 13;
 		}
 		public static View generateLevel() {
 			View v = new View();
@@ -125,6 +157,9 @@ public class NetworkEvaluator {
 			structures.add((x) -> addLongBlocks(v, x));
 			structures.add((x) -> addTowers(v, x));
 			structures.add((x) -> addCLGJump(v, x));
+			structures.add((x) -> addOrb(v, x));
+			structures.add((x) -> addOrbTower(v, x));
+			structures.add((x) -> addTowerOrb(v, x));
 			Random r = new Random();
 			for (int i = 0; i < 10; i++) {
 				int width = structures.get(r.nextInt(structures.size())).applyAsInt(currentX);
@@ -164,6 +199,7 @@ public class NetworkEvaluator {
 			oneh.add(pixel==0 ? 1.0 : 0.0);
 			oneh.add(pixel==1 ? 1.0 : 0.0);
 			oneh.add(pixel==2 ? 1.0 : 0.0);
+			oneh.add(pixel==3 ? 1.0 : 0.0);
 			return oneh;
 		}
 		/*
@@ -201,7 +237,7 @@ public class NetworkEvaluator {
 			Network network = GeneticAlgorithm.createNetwork();
 			runSimulation(network, 0);
 		}
-		public static void runSimulation(Network network, int filename) {
+		public static int runSimulation(Network network, int filename) {
 			View view = LevelGeneration.generateLevel();
 			// Render the level
 			Function<Double, Integer> cx = x -> (int)(Math.ceil(          (x + 2)           * Tile.RENDER_TILE_SIZE));
@@ -242,7 +278,9 @@ public class NetworkEvaluator {
 					view.stopPressing();
 				}
 				view.timeTick();
-				score += decision ? 0 : 1;
+				score += POINTS_PER_FRAME;
+				if (decision) score += JUMP_PENALTY;
+				if (decision && !view.player.mode.jumpingHasEffect()) score += POINTLESS_JUMP_PENALTY;
 				// Draw
 				int px = cx.apply(view.player.x + 0.5);
 				int py = cy.apply(view.player.y + 0.5);
@@ -283,14 +321,12 @@ public class NetworkEvaluator {
 				surface.drawRect(new Color(255, 100, 0), px - 3, py - 3, 6, 6);
 			}
 			// Save the image
-			if (score >= 70) {
-				String fn = "outputs/score" + score + "_network" + filename + ".png";
-				// fn = "outputs/network" + filename + "_score" + score + ".png";
-				try { surface.writeToFile(fn); System.out.println("\t[Video saved to file: " + fn + "]"); }
-				catch (IOException e) { e.printStackTrace(); }
-			} else {
-				System.out.println("\t[Score of " + score + " was too low to make video]");
+			if (score >= VIDEO_MIN_OUTPUT_SCORE/* && (VIDEO_NEEDS_ORB_JUMP ? view.hasJumpedOnOrb : true) */) {
+				String fn = "outputs/score" + score + "_network" + filename + "_v";
+				surface.save(fn);
+				// System.out.println("\t[Video saved to file: " + fn + "]");
 			}
+			return score;
 		}
 	}
 	public static boolean getNetworkDecision(View view, Network network) {
@@ -298,34 +334,16 @@ public class NetworkEvaluator {
 		// probability is on a scale from -1 to 1
 		return Math.random() < probability;
 	}
-	public static int runSimulation(Network network) {
-		View view = LevelGeneration.generateLevel();
-		int score = 0;
-		while (true) {
-			boolean decision = getNetworkDecision(view, network);
-			if (decision && !view.isPressing) {
-				view.startPressing();
-			} else {
-				view.stopPressing();
-			}
-			view.timeTick();
-			score += decision ? 0 : 1;
-			if (view.hasWon || view.hasDied) {
-				// The simulation is over
-				return score;
-			}
-		}
-	}
-	public static double evaluateNetwork(Network network) {
-		int n_trials = 100;
+	public static double evaluateNetwork(Network network, int filename) {
+		int n_trials = 50;
 		int totalScore = 0;
 		for (int i = 0; i < n_trials; i++) {
-			totalScore += runSimulation(network);
+			totalScore += VideoMaker.runSimulation(network, filename);
 		}
 		return (double)(totalScore) / n_trials;
 	}
-	public static double[] evaluateNetworks(ArrayList<Network> networks) {
-		ThreadedNetworkEvaluator evaluator = new ThreadedNetworkEvaluator(networks);
+	public static double[] evaluateNetworks(ArrayList<Network> networks, int filename) {
+		ThreadedNetworkEvaluator evaluator = new ThreadedNetworkEvaluator(networks, filename);
 		evaluator.executeThreads(false);
 		double totalScore = 0;
 		double maxScore = Double.MIN_VALUE;

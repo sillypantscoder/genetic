@@ -62,4 +62,7 @@ public class CubeMode extends GameMode {
 	public boolean canDieFromCeiling() {
 		return true;
 	}
+	public boolean jumpingHasEffect() {
+		return this.player.groundHeight.isPresent() || this.player.specialJump.isPresent();
+	}
 }

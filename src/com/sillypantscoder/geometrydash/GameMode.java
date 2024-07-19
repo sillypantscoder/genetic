@@ -1,6 +1,6 @@
 package com.sillypantscoder.geometrydash;
 
-abstract class GameMode {
+public abstract class GameMode {
 	protected Player player;
 	public GameMode(Player player) {
 		this.player = player;
@@ -20,7 +20,6 @@ abstract class GameMode {
 	public Rect getRect() {
 		return new Rect(this.player.x, this.player.y, 1, 1);
 	}
-	public boolean canDieFromCeiling() {
-		return false;
-	}
+	public abstract boolean canDieFromCeiling();
+	public abstract boolean jumpingHasEffect();
 }

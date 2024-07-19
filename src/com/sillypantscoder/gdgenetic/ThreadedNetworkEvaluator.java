@@ -10,12 +10,14 @@ public class ThreadedNetworkEvaluator {
 	private ArrayList<Thread> threads;
 	public HashMap<Network, Double> results;
 	public AtomicInteger threadCount;
-	public ThreadedNetworkEvaluator(ArrayList<Network> networks) {
+	public int filename;
+	public ThreadedNetworkEvaluator(ArrayList<Network> networks, int filename) {
 		this.networks = networks;
 		this.threads = new ArrayList<Thread>();
 		this.results = new HashMap<Network, Double>();
 		this.createThreads();
 		this.threadCount = new AtomicInteger(0);
+		this.filename = filename;
 	}
 	public void createThreads() {
 		for (int i = 0; i < this.networks.size(); i++) {
@@ -25,7 +27,7 @@ public class ThreadedNetworkEvaluator {
 	}
 	public Thread createThread(int i) {
 		return new Thread(() -> {
-			double result = NetworkEvaluator.evaluateNetwork(networks.get(i));
+			double result = NetworkEvaluator.evaluateNetwork(networks.get(i), filename);
 			results.put(networks.get(i), result);
 			threadCount.decrementAndGet();
 		}, "network-evaluator-" + i);

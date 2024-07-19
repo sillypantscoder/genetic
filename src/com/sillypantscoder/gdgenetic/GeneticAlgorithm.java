@@ -9,7 +9,7 @@ import java.util.Random;
 
 public class GeneticAlgorithm {
 	public static final int N_MODIFICATIONS_PER_ALTER = 2;
-	public static final int N_SPLITS_PER_NETWORK = 70;
+	public static final int N_SPLITS_PER_NETWORK = 80;
 	public static final int N_BEST_NETWORKS = 5;
 	public static void main(String[] args) {
 		// Make a network

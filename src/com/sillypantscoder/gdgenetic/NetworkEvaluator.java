@@ -17,8 +17,8 @@ import com.sillypantscoder.geometrydash.tile.Tile;
 public class NetworkEvaluator {
 	public static final int POINTS_PER_FRAME = 1;
 	public static final int JUMP_PENALTY = -3;
-	public static final int POINTLESS_JUMP_PENALTY = -3;
-	public static final int VIDEO_MIN_OUTPUT_SCORE = 50;
+	public static final int POINTLESS_JUMP_PENALTY = -4;
+	public static final int VIDEO_MIN_OUTPUT_SCORE = 90;
 	public static void main(String[] args) {
 		// Level Generation
 		View v = LevelGeneration.generateLevel();
@@ -119,6 +119,13 @@ public class NetworkEvaluator {
 			v.tiles.add(new BasicSpike(v, x + 6, 0, 0));
 			return 9;
 		}
+		public static int addDontJump(View v, int x) {
+			for (int n : new int[] { 4, 5, 6, 7 }) {
+				v.tiles.add(new BasicBlock(v, x + n, 1, 0));
+				v.tiles.add(new BasicSpike(v, x + n, 2, 0));
+			}
+			return 9;
+		}
 		public static int addOrb(View v, int x) {
 			v.tiles.add(new JumpOrb(v, x + 5 + Math.round(Math.random()), 1 + Math.round(Math.random()), 0));
 			v.tiles.add(new BasicSpike(v, x + 4, 0, 0));
@@ -147,24 +154,25 @@ public class NetworkEvaluator {
 			v.tiles.add(new BasicSpike(v, x + 11, 0, 0));
 			return 13;
 		}
-		public static View generateLevel() {
-			View v = new View();
-			v.tiles.add(new BasicSpike(v, 2, 0, 0));
-			int currentX = 4;
+		public static void appendRandomStructure(View v) {
 			ArrayList<IntUnaryOperator> structures = new ArrayList<IntUnaryOperator>();
 			structures.add((x) -> addSpike(v, x));
 			structures.add((x) -> addBlocks(v, x));
 			structures.add((x) -> addLongBlocks(v, x));
 			structures.add((x) -> addTowers(v, x));
 			structures.add((x) -> addCLGJump(v, x));
+			structures.add((x) -> addDontJump(v, x));
 			structures.add((x) -> addOrb(v, x));
 			structures.add((x) -> addOrbTower(v, x));
 			structures.add((x) -> addTowerOrb(v, x));
-			Random r = new Random();
-			for (int i = 0; i < 10; i++) {
-				int width = structures.get(r.nextInt(structures.size())).applyAsInt(currentX);
-				currentX += width;
-			}
+			IntUnaryOperator s = structures.get(new Random().nextInt(structures.size()));
+			int width = s.applyAsInt(v.generationX);
+			v.generationX += width;
+		}
+		public static View generateLevel() {
+			View v = new View();
+			v.tiles.add(new BasicSpike(v, 2, 0, 0));
+			v.generationX = 4;
 			return v;
 		}
 	}
@@ -237,9 +245,8 @@ public class NetworkEvaluator {
 			Network network = GeneticAlgorithm.createNetwork();
 			runSimulation(network, 0);
 		}
-		public static int runSimulation(Network network, int filename) {
-			View view = LevelGeneration.generateLevel();
-			// Render the level
+		public static Surface renderSimulation(View view, ArrayList<Double> playerX, ArrayList<Double> playerY, ArrayList<Double> clickX, ArrayList<Double> clickY) {
+			// 1. Render the tiles
 			Function<Double, Integer> cx = x -> (int)(Math.ceil(          (x + 2)           * Tile.RENDER_TILE_SIZE));
 			Function<Double, Integer> cn = n -> (int)(Math.ceil(             n              * Tile.RENDER_TILE_SIZE));
 			Function<Double, Integer> cy = y -> (int)(Math.ceil((view.getStageHeight() - y) * Tile.RENDER_TILE_SIZE));
@@ -263,13 +270,54 @@ public class NetworkEvaluator {
 						cn.apply(rect2.h));
 				} */
 			}
-			int previousX = cx.apply(view.player.x + 0.5);
-			int previousY = cy.apply(view.player.y + 0.5);
-			ArrayList<Integer> clickX = new ArrayList<Integer>();
-			ArrayList<Integer> clickY = new ArrayList<Integer>();
+			// 3. Simulation parameters
+			int previousX = -10;
+			int previousY = 0;
+			int px = 0;
+			int py = 0;
+			// 2. Go through the simulation
+			for (int i = 0; i < playerX.size(); i++) {
+				px = cx.apply(playerX.get(i) + 0.5);
+				py = cy.apply(playerY.get(i) + 0.5);
+				// Draw path
+				surface.drawLine(new Color(0, 255, 0), previousX - 1, previousY, px, py, 1);
+				// Update previous position
+				previousX = px;
+				previousY = py;
+			}
+			// 3. Draw death effects
+			if (view.hasDied) {
+				// hitbox
+				Rect r = view.player.getGeneralRect();
+				surface.drawRect(Color.RED, cx.apply(r.x), cy.apply(r.y) - cn.apply(r.h), cn.apply(r.w), cn.apply(r.h), 1);
+				// x
+				surface.set_at(px - 2, py - 2, Color.RED);
+				surface.set_at(px - 1, py - 1, Color.RED);
+				surface.set_at(px + 2, py - 2, Color.RED);
+				surface.set_at(px + 1, py - 1, Color.RED);
+				surface.set_at(px    , py    , Color.RED);
+				surface.set_at(px - 1, py + 1, Color.RED);
+				surface.set_at(px - 2, py + 2, Color.RED);
+				surface.set_at(px + 1, py + 1, Color.RED);
+				surface.set_at(px + 2, py + 2, Color.RED);
+			}
+			// 4. Add the clicks
+			for (int i = 0; i < clickX.size(); i++) {
+				int clickPixelX = cx.apply(clickX.get(i) + 0.5);
+				int clickPixelY = cy.apply(clickY.get(i) + 0.5);
+				surface.drawRect(new Color(255, 100, 0), clickPixelX - 3, clickPixelY - 3, 6, 6);
+			}
+			return surface;
+		}
+		public static int runSimulation(Network network, int filename) {
+			View view = LevelGeneration.generateLevel();
+			// Simulation parameters
+			ArrayList<Double> playerX = new ArrayList<Double>();
+			ArrayList<Double> playerY = new ArrayList<Double>();
+			ArrayList<Double> clickX = new ArrayList<Double>();
+			ArrayList<Double> clickY = new ArrayList<Double>();
 			boolean previousDecision = false;
 			// Run the simulation
-			int score = 0;
 			while (true) {
 				boolean decision = getNetworkDecision(view, network);
 				if (decision && !view.isPressing) {
@@ -278,55 +326,28 @@ public class NetworkEvaluator {
 					view.stopPressing();
 				}
 				view.timeTick();
-				score += POINTS_PER_FRAME;
-				if (decision) score += JUMP_PENALTY;
-				if (decision && !view.player.mode.jumpingHasEffect()) score += POINTLESS_JUMP_PENALTY;
 				// Draw
-				int px = cx.apply(view.player.x + 0.5);
-				int py = cy.apply(view.player.y + 0.5);
-				surface.drawLine(new Color(0, 255, 0), previousX - 1, previousY, px, py, 1);
+				playerX.add(view.player.x);
+				playerY.add(view.player.y);
 				if (decision && !previousDecision) {
-					clickX.add(px);
-					clickY.add(py);
+					clickX.add(view.player.x);
+					clickY.add(view.player.y);
 				}
-				previousX = px;
-				previousY = py;
 				previousDecision = decision;
 				// Finish
-				if (view.hasDied) {
-					// hitbox
-					Rect r = view.player.getDeathRect();
-					// surface.drawRect(Color.WHITE, cx.apply(r.x), cy.apply(r.y) - cn.apply(r.h), cn.apply(r.w), cn.apply(r.h));
-					surface.drawRect(Color.RED, cx.apply(r.x), cy.apply(r.y) - cn.apply(r.h), cn.apply(r.w), cn.apply(r.h), 1);
-					// x
-					surface.set_at(px - 2, py - 2, Color.RED);
-					surface.set_at(px - 1, py - 1, Color.RED);
-					surface.set_at(px + 2, py - 2, Color.RED);
-					surface.set_at(px + 1, py - 1, Color.RED);
-					surface.set_at(px    , py    , Color.RED);
-					surface.set_at(px - 1, py + 1, Color.RED);
-					surface.set_at(px - 2, py + 2, Color.RED);
-					surface.set_at(px + 1, py + 1, Color.RED);
-					surface.set_at(px + 2, py + 2, Color.RED);
-				}
 				if (view.hasWon || view.hasDied) {
 					// The simulation is over
 					break;
 				}
 			}
-			// Add the clicks
-			for (int i = 0; i < clickX.size(); i++) {
-				int px = clickX.get(i);
-				int py = clickY.get(i);
-				surface.drawRect(new Color(255, 100, 0), px - 3, py - 3, 6, 6);
-			}
+			Surface surface = renderSimulation(view, playerX, playerY, clickX, clickY);
 			// Save the image
-			if (score >= VIDEO_MIN_OUTPUT_SCORE/* && (VIDEO_NEEDS_ORB_JUMP ? view.hasJumpedOnOrb : true) */) {
-				String fn = "outputs/score" + score + "_network" + filename + "_v";
+			if (view.agentScore >= VIDEO_MIN_OUTPUT_SCORE) {
+				String fn = "outputs/score" + view.agentScore/* + "_frames" + frames */ + "_network" + filename + "_v";
 				surface.save(fn);
 				// System.out.println("\t[Video saved to file: " + fn + "]");
 			}
-			return score;
+			return view.agentScore;
 		}
 	}
 	public static boolean getNetworkDecision(View view, Network network) {

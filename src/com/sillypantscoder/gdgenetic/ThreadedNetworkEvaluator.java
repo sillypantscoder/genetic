@@ -67,8 +67,10 @@ public class ThreadedNetworkEvaluator {
 		}
 	}
 	public void printStatus() {
-		System.out.print("\tNetwork Evaluator: [");
-		for (int i = 0; i < threads.size(); i += 3) {
+		final int n_per_row = 110;
+		int rows = 0;
+		System.out.print("\tNetEval - [");
+		for (int i = 0; i < threads.size(); i++) {
 			switch (threads.get(i).getState()) {
 				case NEW:
 					System.out.print("-");
@@ -79,7 +81,11 @@ public class ThreadedNetworkEvaluator {
 				default:
 					System.out.print("#");
 			}
+			if ((i + 1) % n_per_row == 0) {
+				System.out.print("]\n\tNetEval - [");
+				rows += 1;
+			}
 		}
-		System.out.print("]\r");
+		System.out.print("]\r" + "\u001b[1A".repeat(rows));
 	}
 }

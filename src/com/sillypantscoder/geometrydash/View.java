@@ -2,6 +2,7 @@ package com.sillypantscoder.geometrydash;
 
 import java.util.ArrayList;
 import com.sillypantscoder.geometrydash.tile.Tile;
+import com.sillypantscoder.gdgenetic.NetworkEvaluator;
 
 public class View {
 	public ArrayList<Tile> tiles;
@@ -10,6 +11,8 @@ public class View {
 	public boolean hasStartedPressing = false;
 	public boolean hasWon = false;
 	public boolean hasDied = false;
+	public int agentScore = 0;
+	public int generationX = 0;
 	public View() {
 		this.tiles = new ArrayList<Tile>();
 		this.player = new Player(this);
@@ -42,6 +45,14 @@ public class View {
 		for (int i = 0; i < n_frames; i++) {
 			if (this.hasWon || this.hasDied) return;
 			this.tick(1 / n_frames);
+		}
+		// Score
+		agentScore += NetworkEvaluator.POINTS_PER_FRAME;
+		if (isPressing) agentScore += NetworkEvaluator.JUMP_PENALTY;
+		if (isPressing && !player.mode.jumpingHasEffect()) agentScore += NetworkEvaluator.POINTLESS_JUMP_PENALTY;
+		// Add more
+		if (player.x > generationX - 5) {
+			NetworkEvaluator.LevelGeneration.appendRandomStructure(this);
 		}
 	}
 	public void startPressing() {

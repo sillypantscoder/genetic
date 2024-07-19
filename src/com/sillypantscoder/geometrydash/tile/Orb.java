@@ -21,6 +21,8 @@ public abstract class Orb extends Tile {
 			player.specialJump = Optional.ofNullable(() -> {
 				target.activated = true;
 				target.activate(player);
+				// boing
+				player.view.agentScore += 10;
 			});
 		}
 	}

@@ -5,11 +5,10 @@ import java.awt.Color;
 import com.sillypantscoder.gdgenetic.Surface;
 import com.sillypantscoder.geometrydash.Rect;
 import com.sillypantscoder.geometrydash.Utils;
-import com.sillypantscoder.geometrydash.View;
 
 public class BasicSpike extends TileDeath {
-	public BasicSpike(View view, double x, double y) {
-		super(view, x, y);
+	public BasicSpike(double x, double y) {
+		super(x, y);
 	}
 	public Rect getRect() {
 		return super.getRect().relative(0.4, 0.3, 0.2, 0.5);

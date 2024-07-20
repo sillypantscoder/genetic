@@ -2,11 +2,9 @@ package com.sillypantscoder.geometrydash.tile;
 
 import java.awt.Color;
 
-import com.sillypantscoder.geometrydash.View;
-
 public class NormalGravityPortal extends GravityPortal {
-	public NormalGravityPortal(View view, int x, int y) {
-		super(view, x, y);
+	public NormalGravityPortal(int x, int y) {
+		super(x, y);
 	}
 	public int getGravity() {
 		return 1;

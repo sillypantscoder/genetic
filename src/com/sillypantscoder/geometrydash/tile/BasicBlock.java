@@ -4,11 +4,10 @@ import java.awt.Color;
 
 import com.sillypantscoder.gdgenetic.Surface;
 import com.sillypantscoder.geometrydash.Rect;
-import com.sillypantscoder.geometrydash.View;
 
 public class BasicBlock extends TileBlock {
-	public BasicBlock(View view, double x, double y) {
-		super(view, x, y);
+	public BasicBlock(double x, double y) {
+		super(x, y);
 	}
 	public int[][] drawForNetwork() {
 		return new int[][] {

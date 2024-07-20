@@ -4,13 +4,7 @@ public class SceneItem {
     public View view;
     public double x;
     public double y;
-    /**
-     * @param view
-     * @param x
-     * @param y
-     */
-    public SceneItem(View view, double x, double y) {
-        this.view = view;
+    public SceneItem(double x, double y) {
         this.x = x;
         this.y = y;
 	}

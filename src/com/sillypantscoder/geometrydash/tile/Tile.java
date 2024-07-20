@@ -1,6 +1,5 @@
 package com.sillypantscoder.geometrydash.tile;
 
-import com.sillypantscoder.geometrydash.View;
 import com.sillypantscoder.geometrydash.SceneItem;
 import com.sillypantscoder.geometrydash.Rect;
 import com.sillypantscoder.gdgenetic.Surface;
@@ -8,8 +7,8 @@ import com.sillypantscoder.geometrydash.Player;
 
 public abstract class Tile extends SceneItem {
 	public static final int RENDER_TILE_SIZE = 20;
-	public Tile(View view, double x, double y) {
-		super(view, x, y);
+	public Tile(double x, double y) {
+		super(x, y);
 	}
 	public Rect getRect() {
 		return new Rect(this.x, this.y, 1, 1);

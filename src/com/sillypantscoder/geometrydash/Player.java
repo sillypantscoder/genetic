@@ -10,7 +10,8 @@ public class Player extends SceneItem {
 	public double gravity = 1;
 	public GameMode mode;
 	public Player(View view) {
-		super(view, -3, 0);
+		super(-3, 0);
+		this.view = view;
 		this.mode = new CubeMode(this);
 		this.setStartMode();
 	}

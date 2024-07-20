@@ -24,7 +24,7 @@ public class Main {
 			System.out.println("Iterations done: " + i + "/" + totalIterations + " (" + neat(((double)(i)/totalIterations)*100.0) + "%)");
 			double[] scores = NetworkEvaluator.evaluateNetworksWithoutPrintingData(networkList, i + 1);
 			double score = scores[0];
-			int stagewidth = (int)(NetworkEvaluator.LevelGeneration.generateLevel().getStageWidth() / 0.2);
+			int stagewidth = (int)(LevelGeneration.generateLevel().getStageWidth() / 0.2);
 			System.out.print("\tAverage score is: " + neat(score) + "/" + stagewidth);
 			System.out.println(" (" + (score>previousScore ? "+" : "-") + neat(Math.abs(score - previousScore)) + " from last; " +
 				(score>initialScore ? "+" : "-") + neat(Math.abs(score - initialScore)) + " from first)");

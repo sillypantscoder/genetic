@@ -5,11 +5,10 @@ import java.awt.Color;
 import com.sillypantscoder.gdgenetic.Surface;
 import com.sillypantscoder.geometrydash.Player;
 import com.sillypantscoder.geometrydash.Rect;
-import com.sillypantscoder.geometrydash.View;
 
 public abstract class GravityPortal extends Portal {
-	public GravityPortal(View view, int x, int y) {
-		super(view, x, y, 3);
+	public GravityPortal(int x, int y) {
+		super(x, y, 3);
 	}
 	public abstract int getGravity();
 	public abstract Color getColor();

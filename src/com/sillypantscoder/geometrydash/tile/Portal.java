@@ -2,13 +2,12 @@ package com.sillypantscoder.geometrydash.tile;
 
 import com.sillypantscoder.geometrydash.Player;
 import com.sillypantscoder.geometrydash.Rect;
-import com.sillypantscoder.geometrydash.View;
 
 public abstract class Portal extends Tile {
 	public boolean activated;
 	public double realheight;
-	public Portal(View view, int x, int y, double realheight) {
-		super(view, x, y);
+	public Portal(int x, int y, double realheight) {
+		super(x, y);
 		this.realheight = realheight;
 	}
 	public Rect getRect() {
@@ -20,8 +19,9 @@ public abstract class Portal extends Tile {
 		var thisRect = this.getRect();
 		if (playerRect.colliderect(thisRect)) {
 			this.activated = true;
-			view.agentScore += 100000;
 			this.activate(player);
+			// vwoop
+			view.agentScore += 8;
 		}
 	}
 	public abstract void activate(Player player);

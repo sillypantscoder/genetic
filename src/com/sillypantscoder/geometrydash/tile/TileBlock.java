@@ -1,15 +1,13 @@
 package com.sillypantscoder.geometrydash.tile;
 
-import com.sillypantscoder.geometrydash.View;
-
 import java.util.Optional;
 
 import com.sillypantscoder.geometrydash.Player;
 import com.sillypantscoder.geometrydash.Rect;
 
 public abstract class TileBlock extends Tile {
-	public TileBlock(View view, double x, double y) {
-		super(view, x, y);
+	public TileBlock(double x, double y) {
+		super(x, y);
 	}
 	public void collide(Player player) {
 		Player.PlayerBlockRects playerRects = new Player.PlayerBlockRects(player);

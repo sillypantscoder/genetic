@@ -4,12 +4,11 @@ import java.util.Optional;
 
 import com.sillypantscoder.geometrydash.Player;
 import com.sillypantscoder.geometrydash.Rect;
-import com.sillypantscoder.geometrydash.View;
 
 public abstract class Orb extends Tile {
 	public boolean activated;
-	public Orb(View view, double x, double y) {
-		super(view, x, y);
+	public Orb(double x, double y) {
+		super(x, y);
 	}
 	public void collide(Player player) {
 		if (this.activated) return;

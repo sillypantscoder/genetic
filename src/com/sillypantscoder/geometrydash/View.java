@@ -2,6 +2,7 @@ package com.sillypantscoder.geometrydash;
 
 import java.util.ArrayList;
 import com.sillypantscoder.geometrydash.tile.Tile;
+import com.sillypantscoder.gdgenetic.LevelGeneration;
 import com.sillypantscoder.gdgenetic.NetworkEvaluator;
 
 public class View {
@@ -16,6 +17,11 @@ public class View {
 	public View() {
 		this.tiles = new ArrayList<Tile>();
 		this.player = new Player(this);
+	}
+	public void ownTiles() {
+		for (Tile t : this.tiles) {
+			t.view = this;
+		}
 	}
 	public double getStageHeight() {
 		double height = 1;
@@ -52,7 +58,8 @@ public class View {
 		if (isPressing && !player.mode.jumpingHasEffect()) agentScore += NetworkEvaluator.POINTLESS_JUMP_PENALTY;
 		// Add more
 		if (player.x > generationX - 5) {
-			NetworkEvaluator.LevelGeneration.appendRandomStructure(this);
+			LevelGeneration.appendRandomStructure(this);
+			this.ownTiles();
 		}
 	}
 	public void startPressing() {

@@ -5,11 +5,10 @@ import java.awt.Color;
 import com.sillypantscoder.gdgenetic.Surface;
 import com.sillypantscoder.geometrydash.Player;
 import com.sillypantscoder.geometrydash.Rect;
-import com.sillypantscoder.geometrydash.View;
 
 public class JumpOrb extends Orb {
-	public JumpOrb(View view, double x, double y) {
-		super(view, x, y);
+	public JumpOrb(double x, double y) {
+		super(x, y);
 	}
 	public void activate(Player player) {
 		player.vy = 0.33 * player.gravity;

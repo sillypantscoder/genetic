@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 import com.sillypantscoder.geometrydash.View;
 import com.sillypantscoder.geometrydash.tile.BasicBlock;
 import com.sillypantscoder.geometrydash.tile.BasicSpike;
+import com.sillypantscoder.geometrydash.tile.GravityPortal;
 import com.sillypantscoder.geometrydash.tile.JumpOrb;
 import com.sillypantscoder.geometrydash.tile.NormalGravityPortal;
 import com.sillypantscoder.geometrydash.tile.ReverseGravityPortal;
@@ -33,6 +34,12 @@ public class LevelGeneration {
 			}
 			return this;
 		}
+		public Structure flip(double newFloorY) {
+			for (int i = 0; i < tiles.length; i++) {
+				tiles[i].y = (newFloorY - tiles[i].y) - 1;
+			}
+			return this;
+		}
 		public Structure plus(Structure other) {
 			Tile[] combined = new Tile[tiles.length + other.tiles.length];
 			System.arraycopy(tiles, 0, combined, 0, tiles.length);
@@ -42,16 +49,24 @@ public class LevelGeneration {
 		public ArrayList<Tile> tiles() {
 			return new ArrayList<>(Arrays.asList(tiles));
 		}
+		public boolean hasTile(Class<? extends Tile> type) {
+			for (Tile t : tiles) {
+				if (type.isInstance(t)) return true;
+			}
+			return false;
+		}
 	}
 	public static Supplier<Structure> getRandomStructure() {
 		ArrayList<Supplier<Structure>> structures = new ArrayList<Supplier<Structure>>();
 		structures.add(() -> makeSpike());
+		structures.add(() -> makeLongBlocks());
 		structures.add(() -> makeCLGJump());
 		structures.add(() -> makeDontJump());
 		structures.add(() -> makeOrb());
 		structures.add(() -> makeOrbTower());
 		structures.add(() -> makeTowerOrb());
 		structures.add(() -> makeShortUpsideDownSection());
+		structures.add(() -> makeLongUpsideDownSection());
 		Supplier<Structure> s = structures.get(new Random().nextInt(structures.size()));
 		return s;
 	}
@@ -82,6 +97,22 @@ public class LevelGeneration {
 				return new Structure(tiles, 8);
 			}
 		}
+	}
+	public static Structure makeLongBlocks() {
+		ArrayList<Tile> tiles = new ArrayList<Tile>();
+		int width = 2 + random.nextInt(4);
+		int numInner = 0 + random.nextInt(2);
+		for (int i = 0; i < numInner; i++) {
+			Structure inner = getRandomStructure().get();
+			inner.shift(width, 1);
+			tiles.addAll(inner.tiles());
+			width += inner.width;
+		}
+		width += 1 + random.nextInt(3);
+		for (int i = 0; i < width; i++) {
+			tiles.add(new BasicBlock(3 + i, 0));
+		}
+		return new Structure(tiles, 4 + width);
 	}
 	public static Structure makeCLGJump() {
 		// can't let go jump (rotation doesn't work :/)
@@ -143,6 +174,28 @@ public class LevelGeneration {
 				tiles.add(new BasicBlock(5 + i, 2));
 				tiles.add(new BasicSpike(5 + i, 3));
 			}
+		}
+		tiles.add(new NormalGravityPortal(5 + width, 2));
+		tiles.add(new BasicBlock(6 + width, 4));
+		tiles.add(new BasicSpike(6 + width, 5));
+		return new Structure(tiles, 6 + width);
+	}
+	public static Structure makeLongUpsideDownSection() {
+		ArrayList<Tile> tiles = new ArrayList<Tile>();
+		tiles.add(new BasicSpike(4, 0));
+		tiles.add(new ReverseGravityPortal(4, 2));
+		int width = 5;
+		int numInner = 1 + random.nextInt(2);
+		for (int i = 0; i < numInner; i++) {
+			Structure inner = getRandomStructure().get();
+			if (inner.hasTile(GravityPortal.class)) continue;
+			inner.flip(5);
+			inner.shift(width, 0);
+			tiles.addAll(inner.tiles());
+			width += inner.width;
+		}
+		for (int i = 0; i < width; i++) {
+			tiles.add(new BasicBlock(5 + i, 5));
 		}
 		tiles.add(new NormalGravityPortal(5 + width, 2));
 		tiles.add(new BasicBlock(6 + width, 4));

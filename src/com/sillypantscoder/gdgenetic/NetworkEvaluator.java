@@ -13,7 +13,7 @@ public class NetworkEvaluator {
 	public static final int POINTS_PER_FRAME = 1;
 	public static final int JUMP_PENALTY = -3;
 	public static final int POINTLESS_JUMP_PENALTY = -4;
-	public static final int VIDEO_MIN_OUTPUT_SCORE = 100;
+	public static final int VIDEO_MIN_OUTPUT_SCORE = 200;
 	public static void main(String[] args) {
 		// Level Generation
 		View v = LevelGeneration.generateLevel();

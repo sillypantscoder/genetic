@@ -21,7 +21,7 @@ public abstract class Portal extends Tile {
 			this.activated = true;
 			this.activate(player);
 			// vwoop
-			view.agentScore += 8;
+			view.agentScore += 5;
 		}
 	}
 	public abstract void activate(Player player);

@@ -13,7 +13,7 @@ public class NetworkEvaluator {
 	public static final int POINTS_PER_FRAME = 1;
 	public static final int JUMP_PENALTY = -3;
 	public static final int POINTLESS_JUMP_PENALTY = -4;
-	public static final int VIDEO_MIN_OUTPUT_SCORE = 200;
+	public static final int VIDEO_MIN_OUTPUT_SCORE = 100;
 	public static void main(String[] args) {
 		// Level Generation
 		View v = LevelGeneration.generateLevel();
@@ -109,7 +109,9 @@ public class NetworkEvaluator {
 			double cameraY = getCameraY(view);
 			for (int y = 0; y < 5 * 4; y++) {
 				for (int x = 0; x < 5 * 4; x++) {
-					ArrayList<Double> pixel = get1HPixel(view, (x / 4.0) + cameraX, (y / 4.0) + cameraY);
+					int readY = y;
+					if (view.player.gravity < 0) readY = ((5 * 4) - y) - 1;
+					ArrayList<Double> pixel = get1HPixel(view, (x / 4.0) + cameraX, (readY / 4.0) + cameraY);
 					inputs.addAll(pixel);
 				}
 			}
@@ -232,7 +234,7 @@ public class NetworkEvaluator {
 		return Math.random() < probability;
 	}
 	public static double evaluateNetwork(Network network, int filename) {
-		int n_trials = 50;
+		int n_trials = 100;
 		int totalScore = 0;
 		for (int i = 0; i < n_trials; i++) {
 			totalScore += VideoMaker.runSimulation(network, filename);
@@ -245,6 +247,9 @@ public class NetworkEvaluator {
 		double totalScore = 0;
 		double maxScore = Double.MIN_VALUE;
 		for (int i = 0; i < networks.size(); i++) {
+			if (! evaluator.results.containsKey(networks.get(i))) {
+				continue;
+			}
 			double score = evaluator.results.get(networks.get(i));
 			totalScore += score;
 			if (score > maxScore) maxScore = score;

@@ -131,15 +131,22 @@ public class LevelGeneration {
 		}, 13);
 	}
 	public static Structure makeShortUpsideDownSection() {
-		return new Structure(new Tile[] {
-			new BasicSpike(4, 0),
-			new ReverseGravityPortal(4, 2),
-			new BasicBlock(5, 5),
-			new BasicBlock(6, 5),
-			new BasicBlock(7, 5),
-			new NormalGravityPortal(8, 2),
-			new BasicBlock(9, 4),
-			new BasicSpike(9, 5)
-		}, 9);
+		ArrayList<Tile> tiles = new ArrayList<Tile>();
+		tiles.add(new BasicSpike(4, 0));
+		tiles.add(new ReverseGravityPortal(4, 2));
+		int width = 3 + random.nextInt(9);
+		for (int i = 0; i < width; i++) {
+			tiles.add(new BasicBlock(5 + i, 5));
+		}
+		for (int i = 4; i < width; i += 2) {
+			if (random.nextBoolean()) {
+				tiles.add(new BasicBlock(5 + i, 2));
+				tiles.add(new BasicSpike(5 + i, 3));
+			}
+		}
+		tiles.add(new NormalGravityPortal(5 + width, 2));
+		tiles.add(new BasicBlock(6 + width, 4));
+		tiles.add(new BasicSpike(6 + width, 5));
+		return new Structure(tiles, 6 + width);
 	}
 }

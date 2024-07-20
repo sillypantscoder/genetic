@@ -7,14 +7,14 @@ import com.sillypantscoder.geometrydash.Rect;
 import com.sillypantscoder.geometrydash.View;
 
 public abstract class Orb extends Tile {
-	public boolean activated = false;
-	public Orb(View view, double x, double y, double rotation) {
-		super(view, x, y, rotation);
+	public boolean activated;
+	public Orb(View view, double x, double y) {
+		super(view, x, y);
 	}
 	public void collide(Player player) {
 		if (this.activated) return;
 		Rect playerRect = player.getGeneralRect();
-		Rect thisRect = this.getRect().rotate(this.rotation, this.x + 0.5, this.y + 0.5);
+		Rect thisRect = this.getRect();
 		if (playerRect.colliderect(thisRect)) {
 			// Jumpy jumpy
 			Orb target = this;

@@ -17,18 +17,18 @@ public class GeneticAlgorithm {
 		// Put it in a set by itself
 		ArrayList<Network> startingNetworks = new ArrayList<Network>();
 		startingNetworks.add(network);
-		System.out.println("Original score: " + NetworkEvaluator.evaluateNetworks(startingNetworks, 0));
+		System.out.println("Original score: " + NetworkEvaluator.evaluateNetworksWithoutPrintingData(startingNetworks, 0));
 		// And test it!
 		ArrayList<Network> betterNetworks = runOneIteration(startingNetworks, 0);
 		// See if our better networks do better than our original
-		System.out.println("Better score: " + NetworkEvaluator.evaluateNetworks(betterNetworks, 0));
+		System.out.println("Better score: " + NetworkEvaluator.evaluateNetworksWithoutPrintingData(betterNetworks, 0));
 		// Run another iteration!
 		ArrayList<Network> evenBetterNetworks = runOneIteration(betterNetworks, 0);
-		System.out.println("Even better score: " + NetworkEvaluator.evaluateNetworks(evenBetterNetworks, 0));
+		System.out.println("Even better score: " + NetworkEvaluator.evaluateNetworksWithoutPrintingData(evenBetterNetworks, 0));
 	}
 	public static Network createNetwork() {
 		// Create a compatible network.
-		return Network.createZeroLayer(5 * 5 * 4 * 4 * 4); // 5: Height  5: Width  4: Block height  4: Block width  4: Pixel depth
+		return Network.createZeroLayer(5 * 5 * 4 * 4 * 5); // 5: Height  5: Width  4: Block height  4: Block width  5: Pixel depth
 	}
 	public static Network alterNetwork(Network input) {
 		Network currentNetwork = input.copy();

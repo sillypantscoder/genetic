@@ -43,14 +43,14 @@ public class ThreadedNetworkEvaluator {
 				threadCount.incrementAndGet();
 				if (i >= networks.size()) break;
 			}
-			if (print) printStatus();
+			if (print) printStatus(false);
 			if (i >= networks.size()) break;
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			if (print) printStatus();
+			if (print) printStatus(false);
 		}
 		while (threadCount.get() > 0) {
 			try {
@@ -58,18 +58,19 @@ public class ThreadedNetworkEvaluator {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			if (print) printStatus();
+			if (print) printStatus(false);
 		}
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		if (print) printStatus(true);
 	}
-	public void printStatus() {
+	public void printStatus(boolean isEnd) {
 		final int n_per_row = 110;
 		int rows = 0;
-		System.out.print("\tNetEval - [");
+		System.out.print("\tNetwork Evaluator: [");
 		for (int i = 0; i < threads.size(); i++) {
 			switch (threads.get(i).getState()) {
 				case NEW:
@@ -82,10 +83,11 @@ public class ThreadedNetworkEvaluator {
 					System.out.print("#");
 			}
 			if ((i + 1) % n_per_row == 0) {
-				System.out.print("]\n\tNetEval - [");
+				System.out.print("]\n\t                   [");
 				rows += 1;
 			}
 		}
-		System.out.print("]\r" + "\u001b[1A".repeat(rows));
+		System.out.print("]\r");
+		if (! isEnd) System.out.print("\u001b[1A".repeat(rows));
 	}
 }

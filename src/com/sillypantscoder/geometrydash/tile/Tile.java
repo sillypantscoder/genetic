@@ -8,15 +8,11 @@ import com.sillypantscoder.geometrydash.Player;
 
 public abstract class Tile extends SceneItem {
 	public static final int RENDER_TILE_SIZE = 20;
-	public Tile(View view, double x, double y, double rotation) {
+	public Tile(View view, double x, double y) {
 		super(view, x, y);
-		this.rotation = rotation;
 	}
 	public Rect getRect() {
 		return new Rect(this.x, this.y, 1, 1);
-	}
-	public Rect getRotatedRect() {
-		return getRect().rotate(this.rotation, this.x + 0.5, this.y + 0.5);
 	}
 	public void tick(double amount) {
 		this.collide(this.view.player);

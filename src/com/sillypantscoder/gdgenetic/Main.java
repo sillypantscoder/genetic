@@ -13,7 +13,7 @@ public class Main {
 		ArrayList<Network> networkList = new ArrayList<Network>();
 		networkList.add(network);
 		// Initial score
-		double initialScore = NetworkEvaluator.evaluateNetworks(networkList, 0)[0];
+		double initialScore = NetworkEvaluator.evaluateNetworksWithoutPrintingData(networkList, 0)[0];
 		System.out.println("Initial score is: " + initialScore);
 		bar(initialScore);
 		// Run a bunch of iterations
@@ -22,7 +22,7 @@ public class Main {
 		for (int i = 0; i < totalIterations + 1; i++) {
 			// Find average score for this iteration
 			System.out.println("Iterations done: " + i + "/" + totalIterations + " (" + neat(((double)(i)/totalIterations)*100.0) + "%)");
-			double[] scores = NetworkEvaluator.evaluateNetworks(networkList, i + 1);
+			double[] scores = NetworkEvaluator.evaluateNetworksWithoutPrintingData(networkList, i + 1);
 			double score = scores[0];
 			int stagewidth = (int)(NetworkEvaluator.LevelGeneration.generateLevel().getStageWidth() / 0.2);
 			System.out.print("\tAverage score is: " + neat(score) + "/" + stagewidth);

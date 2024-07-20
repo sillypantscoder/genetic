@@ -4,7 +4,6 @@ public class SceneItem {
     public View view;
     public double x;
     public double y;
-    public double rotation = 0;
     /**
      * @param view
      * @param x

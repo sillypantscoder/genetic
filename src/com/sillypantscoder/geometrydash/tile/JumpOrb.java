@@ -8,8 +8,8 @@ import com.sillypantscoder.geometrydash.Rect;
 import com.sillypantscoder.geometrydash.View;
 
 public class JumpOrb extends Orb {
-	public JumpOrb(View view, double x, double y, double rotation) {
-		super(view, x, y, rotation);
+	public JumpOrb(View view, double x, double y) {
+		super(view, x, y);
 	}
 	public void activate(Player player) {
 		player.vy = 0.33 * player.gravity;

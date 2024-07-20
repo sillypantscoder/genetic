@@ -81,18 +81,24 @@ public class Surface {
 		g2d.drawRect(x, y, width, height);
 		g2d.dispose();
 	}
-	public void drawCircle(Color color, int cx, int cy, int r) {
+	public void drawEllipse(Color color, int cx, int cy, int rx, int ry) {
 		Graphics2D g2d = img.createGraphics();
 		g2d.setColor(color);
-		g2d.fillOval(cx - r, cy - r, r*2, r*2);
+		g2d.fillOval(cx - rx, cy - ry, rx*2, ry*2);
 		g2d.dispose();
 	}
-	public void drawCircle(Color color, int cx, int cy, int r, int lineWidth) {
+	public void drawEllipse(Color color, int cx, int cy, int rx, int ry, int lineWidth) {
 		Graphics2D g2d = img.createGraphics();
 		g2d.setColor(color);
 		g2d.setStroke(new BasicStroke(lineWidth));
-		g2d.drawOval(cx - r, cy - r, r*2, r*2);
+		g2d.drawOval(cx - rx, cy - ry, rx*2, ry*2);
 		g2d.dispose();
+	}
+	public void drawCircle(Color color, int cx, int cy, int r) {
+		this.drawEllipse(color, cx, cy, r, r);
+	}
+	public void drawCircle(Color color, int cx, int cy, int r, int lineWidth) {
+		this.drawEllipse(color, cx, cy, r, r, lineWidth);
 	}
 	public void writeToFile(String filename) throws IOException {
 		File outputfile = new File(filename);

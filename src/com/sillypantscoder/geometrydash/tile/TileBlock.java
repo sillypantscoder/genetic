@@ -8,12 +8,12 @@ import com.sillypantscoder.geometrydash.Player;
 import com.sillypantscoder.geometrydash.Rect;
 
 public abstract class TileBlock extends Tile {
-	public TileBlock(View view, double x, double y, double rotation) {
-		super(view, x, y, rotation);
+	public TileBlock(View view, double x, double y) {
+		super(view, x, y);
 	}
 	public void collide(Player player) {
 		Player.PlayerBlockRects playerRects = new Player.PlayerBlockRects(player);
-		Rect thisRect = this.getRect().rotate(this.rotation, this.x + 0.5, this.y + 0.5);
+		Rect thisRect = this.getRect();
 		if (playerRects.collideRect.colliderect(thisRect)) {
 			// The player has collided with the side of this block.
 			player.destroy(); // :(

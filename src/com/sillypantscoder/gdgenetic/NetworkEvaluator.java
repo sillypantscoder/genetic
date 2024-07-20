@@ -12,13 +12,14 @@ import com.sillypantscoder.geometrydash.View;
 import com.sillypantscoder.geometrydash.tile.BasicBlock;
 import com.sillypantscoder.geometrydash.tile.BasicSpike;
 import com.sillypantscoder.geometrydash.tile.JumpOrb;
+import com.sillypantscoder.geometrydash.tile.ReverseGravityPortal;
 import com.sillypantscoder.geometrydash.tile.Tile;
 
 public class NetworkEvaluator {
 	public static final int POINTS_PER_FRAME = 1;
 	public static final int JUMP_PENALTY = -3;
 	public static final int POINTLESS_JUMP_PENALTY = -4;
-	public static final int VIDEO_MIN_OUTPUT_SCORE = 90;
+	public static final int VIDEO_MIN_OUTPUT_SCORE = 200;
 	public static void main(String[] args) {
 		// Level Generation
 		View v = LevelGeneration.generateLevel();
@@ -58,101 +59,106 @@ public class NetworkEvaluator {
 	}
 	public static class LevelGeneration {
 		public static int addSpike(View v, int x) {
-			v.tiles.add(new BasicSpike(v, x + 3, 0, 0));
+			v.tiles.add(new BasicSpike(v, x + 3, 0));
 			if (new Random().nextBoolean()) {
 				return 6;
 			} else {
-				v.tiles.add(new BasicSpike(v, x + 4, 0, 0));
+				v.tiles.add(new BasicSpike(v, x + 4, 0));
 				if (new Random().nextBoolean()) {
 					return 7;
 				} else {
-					v.tiles.add(new BasicSpike(v, x + 5, 0, 0));
+					v.tiles.add(new BasicSpike(v, x + 5, 0));
 					return 8;
 				}
 			}
 		}
 		public static int addBlocks(View v, int x) {
-			if (new Random().nextBoolean()) v.tiles.add(new BasicSpike(v, x + 2, 0, 0));
-			v.tiles.add(new BasicBlock(v, x + 3, 0, 0));
-			v.tiles.add(new BasicBlock(v, x + 4, 0, 0));
-			v.tiles.add(new BasicBlock(v, x + 5, 0, 0));
-			v.tiles.add(new BasicBlock(v, x + 6, 0, 0));
-			if (new Random().nextBoolean()) v.tiles.add(new BasicSpike(v, x + 6, 1, 0));
+			if (new Random().nextBoolean()) v.tiles.add(new BasicSpike(v, x + 2, 0));
+			v.tiles.add(new BasicBlock(v, x + 3, 0));
+			v.tiles.add(new BasicBlock(v, x + 4, 0));
+			v.tiles.add(new BasicBlock(v, x + 5, 0));
+			v.tiles.add(new BasicBlock(v, x + 6, 0));
+			if (new Random().nextBoolean()) v.tiles.add(new BasicSpike(v, x + 6, 1));
 			if (new Random().nextBoolean()) {
 				return 8;
 			} else {
-				v.tiles.add(new BasicSpike(v, x + 7, 0, 0));
+				v.tiles.add(new BasicSpike(v, x + 7, 0));
 				return 9;
 			}
 		}
 		public static int addLongBlocks(View v, int x) {
-			if (new Random().nextBoolean()) v.tiles.add(new BasicSpike(v, x + 3, 0, 0));
-			v.tiles.add(new BasicBlock(v, x + 4, 0, 0));
-			v.tiles.add(new BasicBlock(v, x + 5, 0, 0));
-			v.tiles.add(new BasicBlock(v, x + 6, 0, 0));
-			v.tiles.add(new BasicBlock(v, x + 7, 0, 0)); if (new Random().nextBoolean()) v.tiles.add(new BasicSpike(v, x + 7, 1, 0));
-			v.tiles.add(new BasicBlock(v, x + 8, 0, 0)); if (new Random().nextBoolean()) v.tiles.add(new BasicSpike(v, x + 8, 1, 0));
-			v.tiles.add(new BasicBlock(v, x + 9, 0, 0));
-			v.tiles.add(new BasicBlock(v, x + 10, 0, 0));
-			v.tiles.add(new BasicBlock(v, x + 11, 0, 0)); if (new Random().nextBoolean()) v.tiles.add(new BasicSpike(v, x + 11, 1, 0));
-			if (new Random().nextBoolean()) v.tiles.add(new BasicSpike(v, x + 12, 0, 0));
+			if (new Random().nextBoolean()) v.tiles.add(new BasicSpike(v, x + 3, 0));
+			v.tiles.add(new BasicBlock(v, x + 4, 0));
+			v.tiles.add(new BasicBlock(v, x + 5, 0));
+			v.tiles.add(new BasicBlock(v, x + 6, 0));
+			v.tiles.add(new BasicBlock(v, x + 7, 0)); if (new Random().nextBoolean()) v.tiles.add(new BasicSpike(v, x + 7, 1));
+			v.tiles.add(new BasicBlock(v, x + 8, 0)); if (new Random().nextBoolean()) v.tiles.add(new BasicSpike(v, x + 8, 1));
+			v.tiles.add(new BasicBlock(v, x + 9, 0));
+			v.tiles.add(new BasicBlock(v, x + 10, 0));
+			v.tiles.add(new BasicBlock(v, x + 11, 0)); if (new Random().nextBoolean()) v.tiles.add(new BasicSpike(v, x + 11, 1));
+			if (new Random().nextBoolean()) v.tiles.add(new BasicSpike(v, x + 12, 0));
 			return 14;
 		}
 		public static int addTowers(View v, int x) {
-			v.tiles.add(new BasicBlock(v, x + 4, 1, 0));
-			v.tiles.add(new BasicSpike(v, x + 4, 0, 0));
-			v.tiles.add(new BasicBlock(v, x + 7, 0, 0));
-			v.tiles.add(new BasicBlock(v, x + 7, 1, 0));
-			if (new Random().nextBoolean()) v.tiles.add(new BasicBlock(v, x + 7, 2, 0));
+			v.tiles.add(new BasicBlock(v, x + 4, 1));
+			v.tiles.add(new BasicSpike(v, x + 4, 0));
+			v.tiles.add(new BasicBlock(v, x + 7, 0));
+			v.tiles.add(new BasicBlock(v, x + 7, 1));
+			if (new Random().nextBoolean()) v.tiles.add(new BasicBlock(v, x + 7, 2));
 			if (new Random().nextBoolean()) {
-				v.tiles.add(new BasicBlock(v, x + 9, 0, 0));
-				v.tiles.add(new BasicBlock(v, x + 9, 1, 0));
+				v.tiles.add(new BasicBlock(v, x + 9, 0));
+				v.tiles.add(new BasicBlock(v, x + 9, 1));
 			} else {
-				v.tiles.add(new BasicBlock(v, x + 10, 0, 0));
-				v.tiles.add(new BasicBlock(v, x + 10, 1, 0));
+				v.tiles.add(new BasicBlock(v, x + 10, 0));
+				v.tiles.add(new BasicBlock(v, x + 10, 1));
 			}
 			return 13;
 		}
 		public static int addCLGJump(View v, int x) { // can't let go jump (rotation doesn't work :/)
-			v.tiles.add(new BasicBlock(v, x + 4, 1, 0));
-			v.tiles.add(new BasicSpike(v, x + 4, 2, 0));
-			v.tiles.add(new BasicSpike(v, x + 6, 0, 0));
+			v.tiles.add(new BasicBlock(v, x + 4, 1));
+			v.tiles.add(new BasicSpike(v, x + 4, 2));
+			v.tiles.add(new BasicSpike(v, x + 6, 0));
 			return 9;
 		}
 		public static int addDontJump(View v, int x) {
 			for (int n : new int[] { 4, 5, 6, 7 }) {
-				v.tiles.add(new BasicBlock(v, x + n, 1, 0));
-				v.tiles.add(new BasicSpike(v, x + n, 2, 0));
+				v.tiles.add(new BasicBlock(v, x + n, 1));
+				v.tiles.add(new BasicSpike(v, x + n, 2));
 			}
 			return 9;
 		}
 		public static int addOrb(View v, int x) {
-			v.tiles.add(new JumpOrb(v, x + 5 + Math.round(Math.random()), 1 + Math.round(Math.random()), 0));
-			v.tiles.add(new BasicSpike(v, x + 4, 0, 0));
-			v.tiles.add(new BasicSpike(v, x + 5, 0, 0));
-			v.tiles.add(new BasicSpike(v, x + 6, 0, 0));
-			v.tiles.add(new BasicSpike(v, x + 7, 0, 0));
+			v.tiles.add(new JumpOrb(v, x + 5 + Math.round(Math.random()), 1 + Math.round(Math.random())));
+			v.tiles.add(new BasicSpike(v, x + 4, 0));
+			v.tiles.add(new BasicSpike(v, x + 5, 0));
+			v.tiles.add(new BasicSpike(v, x + 6, 0));
+			v.tiles.add(new BasicSpike(v, x + 7, 0));
 			return 9;
 		}
 		public static int addOrbTower(View v, int x) {
-			v.tiles.add(new JumpOrb(v, x + 4, 1, 0));
-			v.tiles.add(new BasicBlock(v, x + 7, 0, 0));
-			v.tiles.add(new BasicBlock(v, x + 7, 1, 0));
-			v.tiles.add(new BasicBlock(v, x + 7, 2, 0));
+			v.tiles.add(new JumpOrb(v, x + 4, 1));
+			v.tiles.add(new BasicBlock(v, x + 7, 0));
+			v.tiles.add(new BasicBlock(v, x + 7, 1));
+			v.tiles.add(new BasicBlock(v, x + 7, 2));
 			return 10;
 		}
 		public static int addTowerOrb(View v, int x) {
-			v.tiles.add(new JumpOrb(v, x + 9, 1, 0));
-			v.tiles.add(new BasicBlock(v, x + 4, 0, 0));
-			v.tiles.add(new BasicBlock(v, x + 4, 1, 0));
-			v.tiles.add(new BasicSpike(v, x + 5, 0, 0));
-			v.tiles.add(new BasicSpike(v, x + 6, 0, 0));
-			v.tiles.add(new BasicSpike(v, x + 7, 0, 0));
-			v.tiles.add(new BasicSpike(v, x + 8, 0, 0));
-			v.tiles.add(new BasicSpike(v, x + 9, 0, 0));
-			v.tiles.add(new BasicSpike(v, x + 10, 0, 0));
-			v.tiles.add(new BasicSpike(v, x + 11, 0, 0));
+			v.tiles.add(new JumpOrb(v, x + 9, 1));
+			v.tiles.add(new BasicBlock(v, x + 4, 0));
+			v.tiles.add(new BasicBlock(v, x + 4, 1));
+			v.tiles.add(new BasicSpike(v, x + 5, 0));
+			v.tiles.add(new BasicSpike(v, x + 6, 0));
+			v.tiles.add(new BasicSpike(v, x + 7, 0));
+			v.tiles.add(new BasicSpike(v, x + 8, 0));
+			v.tiles.add(new BasicSpike(v, x + 9, 0));
+			v.tiles.add(new BasicSpike(v, x + 10, 0));
+			v.tiles.add(new BasicSpike(v, x + 11, 0));
 			return 13;
+		}
+		public static int addShortUpsideDownSection(View v, int x) {
+			v.tiles.add(new BasicSpike(v, x + 4, 0));
+			v.tiles.add(new ReverseGravityPortal(v, x + 4, 2));
+			return 8;
 		}
 		public static void appendRandomStructure(View v) {
 			ArrayList<IntUnaryOperator> structures = new ArrayList<IntUnaryOperator>();
@@ -165,13 +171,14 @@ public class NetworkEvaluator {
 			structures.add((x) -> addOrb(v, x));
 			structures.add((x) -> addOrbTower(v, x));
 			structures.add((x) -> addTowerOrb(v, x));
+			// structures.add((x) -> addShortUpsideDownSection(v, x));
 			IntUnaryOperator s = structures.get(new Random().nextInt(structures.size()));
 			int width = s.applyAsInt(v.generationX);
 			v.generationX += width;
 		}
 		public static View generateLevel() {
 			View v = new View();
-			v.tiles.add(new BasicSpike(v, 2, 0, 0));
+			v.tiles.add(new BasicSpike(v, 2, 0));
 			v.generationX = 4;
 			return v;
 		}
@@ -204,10 +211,11 @@ public class NetworkEvaluator {
 		public static ArrayList<Double> get1HPixel(View view, double x, double y) {
 			int pixel = getPixel(view, x, y);
 			ArrayList<Double> oneh = new ArrayList<Double>();
-			oneh.add(pixel==0 ? 1.0 : 0.0);
-			oneh.add(pixel==1 ? 1.0 : 0.0);
-			oneh.add(pixel==2 ? 1.0 : 0.0);
-			oneh.add(pixel==3 ? 1.0 : 0.0);
+			oneh.add(pixel == 0 ? 1.0 : 0.0);
+			oneh.add(pixel == 1 ? 1.0 : 0.0);
+			oneh.add(pixel == 2 ? 1.0 : 0.0);
+			oneh.add(pixel == 3 ? 1.0 : 0.0);
+			oneh.add(pixel == 4 ? 1.0 : 0.0);
 			return oneh;
 		}
 		/*
@@ -340,10 +348,10 @@ public class NetworkEvaluator {
 					break;
 				}
 			}
-			Surface surface = renderSimulation(view, playerX, playerY, clickX, clickY);
 			// Save the image
 			if (view.agentScore >= VIDEO_MIN_OUTPUT_SCORE) {
-				String fn = "outputs/score" + view.agentScore/* + "_frames" + frames */ + "_network" + filename + "_v";
+				Surface surface = renderSimulation(view, playerX, playerY, clickX, clickY);
+				String fn = "outputs/score" + view.agentScore + "_network" + filename + "_v";
 				surface.save(fn);
 				// System.out.println("\t[Video saved to file: " + fn + "]");
 			}
@@ -363,7 +371,7 @@ public class NetworkEvaluator {
 		}
 		return (double)(totalScore) / n_trials;
 	}
-	public static double[] evaluateNetworks(ArrayList<Network> networks, int filename) {
+	public static double[] evaluateNetworksWithoutPrintingData(ArrayList<Network> networks, int filename) {
 		ThreadedNetworkEvaluator evaluator = new ThreadedNetworkEvaluator(networks, filename);
 		evaluator.executeThreads(false);
 		double totalScore = 0;

@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 import com.sillypantscoder.geometrydash.View;
 import com.sillypantscoder.geometrydash.tile.BasicBlock;
 import com.sillypantscoder.geometrydash.tile.BasicSpike;
+import com.sillypantscoder.geometrydash.tile.GravityOrb;
 import com.sillypantscoder.geometrydash.tile.GravityPortal;
 import com.sillypantscoder.geometrydash.tile.JumpOrb;
 import com.sillypantscoder.geometrydash.tile.NormalGravityPortal;
@@ -59,13 +60,13 @@ public class LevelGeneration {
 	public static Supplier<Structure> getRandomStructure() {
 		ArrayList<Supplier<Structure>> structures = new ArrayList<Supplier<Structure>>();
 		structures.add(() -> makeSpike());
+		structures.add(() -> makeSMSet());
 		structures.add(() -> makeLongBlocks());
 		structures.add(() -> makeCLGJump());
 		structures.add(() -> makeDontJump());
 		structures.add(() -> makeOrb());
 		structures.add(() -> makeOrbTower());
 		structures.add(() -> makeTowerOrb());
-		structures.add(() -> makeShortUpsideDownSection());
 		structures.add(() -> makeLongUpsideDownSection());
 		Supplier<Structure> s = structures.get(new Random().nextInt(structures.size()));
 		return s;
@@ -98,12 +99,32 @@ public class LevelGeneration {
 			}
 		}
 	}
+	public static Structure makeSMSet() {
+		return new Structure(new Tile[] {
+			new BasicSpike(3, 0),
+			new BasicSpike(4, 0),
+			new BasicSpike(5, 0),
+			new BasicBlock(6, 0),
+			new BasicSpike(7, 0),
+			new BasicSpike(8, 0),
+			new BasicSpike(9, 0),
+			new BasicBlock(10, 0),
+			new BasicBlock(10, 1),
+			new BasicSpike(11, 0),
+			new BasicSpike(12, 0),
+			new BasicSpike(13, 0),
+			new BasicBlock(14, 0),
+			new BasicBlock(14, 1),
+			new BasicBlock(14, 2)
+		}, 15);
+	}
 	public static Structure makeLongBlocks() {
 		ArrayList<Tile> tiles = new ArrayList<Tile>();
-		int width = 2 + random.nextInt(4);
-		int numInner = 0 + random.nextInt(2);
+		int width = 3 + random.nextInt(4);
+		int numInner = 1 + random.nextInt(2);
 		for (int i = 0; i < numInner; i++) {
 			Structure inner = getRandomStructure().get();
+			if (random.nextDouble() < 0.4) inner = makeLongBlocks();
 			inner.shift(width, 1);
 			tiles.addAll(inner.tiles());
 			width += inner.width;
@@ -161,43 +182,37 @@ public class LevelGeneration {
 			new BasicSpike(11, 0)
 		}, 13);
 	}
-	public static Structure makeShortUpsideDownSection() {
-		ArrayList<Tile> tiles = new ArrayList<Tile>();
-		tiles.add(new BasicSpike(4, 0));
-		tiles.add(new ReverseGravityPortal(4, 2));
-		int width = 3 + random.nextInt(9);
-		for (int i = 0; i < width; i++) {
-			tiles.add(new BasicBlock(5 + i, 5));
-		}
-		for (int i = 4; i < width; i += 2) {
-			if (random.nextBoolean()) {
-				tiles.add(new BasicBlock(5 + i, 2));
-				tiles.add(new BasicSpike(5 + i, 3));
-			}
-		}
-		tiles.add(new NormalGravityPortal(5 + width, 2));
-		tiles.add(new BasicBlock(6 + width, 4));
-		tiles.add(new BasicSpike(6 + width, 5));
-		return new Structure(tiles, 6 + width);
-	}
 	public static Structure makeLongUpsideDownSection() {
 		ArrayList<Tile> tiles = new ArrayList<Tile>();
 		tiles.add(new BasicSpike(4, 0));
-		tiles.add(new ReverseGravityPortal(4, 2));
+		if (random.nextBoolean()) {
+			tiles.add(new ReverseGravityPortal(4, 2));
+		} else {
+			tiles.add(new GravityOrb(5, 2));
+			tiles.add(new BasicSpike(5, 0));
+			tiles.add(new BasicSpike(6, 0));
+			tiles.add(new BasicSpike(7, 0));
+		}
 		int width = 5;
-		int numInner = 1 + random.nextInt(2);
+		int numInner = 1 + random.nextInt(4);
 		for (int i = 0; i < numInner; i++) {
 			Structure inner = getRandomStructure().get();
 			if (inner.hasTile(GravityPortal.class)) continue;
+			if (inner.hasTile(GravityOrb.class)) continue;
 			inner.flip(5);
 			inner.shift(width, 0);
 			tiles.addAll(inner.tiles());
 			width += inner.width;
 		}
-		for (int i = 0; i < width; i++) {
+		for (int i = 0; i < width - 1; i++) {
 			tiles.add(new BasicBlock(5 + i, 5));
 		}
-		tiles.add(new NormalGravityPortal(5 + width, 2));
+		if (random.nextBoolean()) {
+			tiles.add(new NormalGravityPortal(5 + width, 2));
+		} else {
+			tiles.add(new GravityOrb(5 + width, 2));
+			tiles.add(new BasicBlock(6 + width, 3));
+		}
 		tiles.add(new BasicBlock(6 + width, 4));
 		tiles.add(new BasicSpike(6 + width, 5));
 		return new Structure(tiles, 6 + width);

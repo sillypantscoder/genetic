@@ -48,6 +48,15 @@ public class Utils {
 			e.printStackTrace();
 		}
 	}
+	public static void logWithoutNewline(Object... o) {
+		try {
+			FileWriter writer = new FileWriter("log.txt", true);
+			writer.write(" " + join(" ", o));
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	public static void logNetwork(Network network) {
 		String result = "Network:\n\tInputs:";
 		for (int i = 0; i < network.inputs.size(); i++) {
@@ -95,5 +104,17 @@ public class Utils {
 		e.printStackTrace(pw);
 		String stack = sw.toString();
 		log("Stack Trace:\n" + stack);
+	}
+	public static String padLeft(String s, String filler, int width) {
+		if (s.length() >= width) return s;
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < width - s.length(); i++) {
+			sb.append(filler);
+		}
+		sb.append(s);
+		return sb.toString();
+	}
+	public static String padLeft(int s, String filler, int width) {
+		return padLeft("" + s, filler, width);
 	}
 }

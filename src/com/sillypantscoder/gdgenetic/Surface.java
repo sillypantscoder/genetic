@@ -38,6 +38,14 @@ public class Surface {
 		g2d.drawImage(other.img, x, y, new DummyImageObserver());
 		g2d.dispose();
 	}
+	public void blit(Surface other, int centerX, int centerY, double rotation) {
+		Graphics2D g2d = img.createGraphics();
+		g2d.translate(centerX, centerY);
+		g2d.rotate(Math.toRadians(rotation));
+		g2d.translate(-centerX, -centerY);
+		g2d.drawImage(other.img, centerX - other.get_width() / 2, centerY - other.get_height() / 2, new DummyImageObserver());
+		g2d.dispose();
+	}
 	public int get_width() {
 		return img.getWidth();
 	}
@@ -100,6 +108,22 @@ public class Surface {
 	public void drawCircle(Color color, int cx, int cy, int r, int lineWidth) {
 		this.drawEllipse(color, cx, cy, r, r, lineWidth);
 	}
+	public Surface scale_size(int amount) {
+		int newWidth = this.img.getWidth() * amount;
+		int newHeight = this.img.getHeight() * amount;
+		BufferedImage newImg = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g2d = newImg.createGraphics();
+		g2d.drawImage(this.img, 0, 0, newWidth, newHeight, 0, 0, this.img.getWidth(), this.img.getHeight(), null);
+		g2d.dispose();
+		return new Surface(newImg);
+	}
+	public Surface flipVertically() {
+		BufferedImage newImg = new BufferedImage(this.img.getWidth(), this.img.getHeight(), BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g2d = newImg.createGraphics();
+		g2d.drawImage(this.img, 0, this.img.getHeight(), this.img.getWidth(), 0, 0, 0, this.img.getWidth(), this.img.getHeight(), null);
+		g2d.dispose();
+		return new Surface(newImg);
+	}
 	public void writeToFile(String filename) throws IOException {
 		File outputfile = new File(filename);
 		ImageIO.write(img, "png", outputfile);
@@ -134,18 +158,21 @@ public class Surface {
 		// Finish
 		return ret;
 	}
-	public static Surface combineVertically(ArrayList<Surface> surfaces, Color background) {
+	public static Surface combineVertically(Surface[] surfaces, Color background) {
 		int width = 1;
-		for (int i = 0; i < surfaces.size(); i++) { int w = surfaces.get(i).get_width(); if (w > width) { width = w; } }
+		for (int i = 0; i < surfaces.length; i++) { int w = surfaces[i].get_width(); if (w > width) { width = w; } }
 		int height = 1;
-		for (int i = 0; i < surfaces.size(); i++) { int h = surfaces.get(i).get_height(); height += h; }
+		for (int i = 0; i < surfaces.length; i++) { int h = surfaces[i].get_height(); height += h; }
 		Surface total = new Surface(width, height, background);
 		int cum_y = 0;
-		for (int i = 0; i < surfaces.size(); i++) {
-			total.blit(surfaces.get(i), 0, cum_y);
-			cum_y += surfaces.get(i).get_height();
+		for (int i = 0; i < surfaces.length; i++) {
+			total.blit(surfaces[i], 0, cum_y);
+			cum_y += surfaces[i].get_height();
 		}
 		return total;
+	}
+	public static Surface combineVertically(ArrayList<Surface> surfaces, Color background) {
+		return combineVertically(surfaces.toArray(new Surface[surfaces.size()]), background);
 	}
 	public static class DummyImageObserver implements ImageObserver {
 		public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {

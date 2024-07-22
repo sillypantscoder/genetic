@@ -145,11 +145,14 @@ public class LevelGeneration {
 	}
 	public static Structure makeDontJump() {
 		ArrayList<Tile> tiles = new ArrayList<Tile>();
-		for (int n : new int[] { 4, 5, 6, 7 }) {
-			tiles.add(new BasicBlock(n, 1));
-			tiles.add(new BasicSpike(n, 2));
+		int padStart = 1 + random.nextInt(2);
+		int padEnd = 1 + random.nextInt(2);
+		int n = 1 + random.nextInt(3);
+		for (int i = 0; i < n; i++) {
+			tiles.add(new BasicBlock(padStart + i, 1));
+			tiles.add(new BasicSpike(padStart + i, 2));
 		}
-		return new Structure(tiles, 9);
+		return new Structure(tiles, padStart + n + padEnd);
 	}
 	public static Structure makeOrb() {
 		return new Structure(new Tile[] {

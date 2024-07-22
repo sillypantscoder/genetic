@@ -53,14 +53,14 @@ public class Player extends SceneItem {
 			this.y = 0;
 			if (this.gravity > 0) {
 				this.groundHeight = Optional.of(0.0);
+			} else {
+				this.destroy();
 			}
 		}
-		this.mode.getMax();
-		// // Update styles
-		// this.extraStyles = new String[] {
-		// 	"background: url(data:image/svg+xml;base64," + Base64.getEncoder().encodeToString(this.mode.getIcon().getBytes()) + ");",
-		// 	"transform: rotate(" + this.rotation + "deg) scaleY(" + this.gravity + ");"
-		// };
+		// Kill player if they are too high up
+		if (this.y > this.view.getStageHeight()) {
+			this.destroy();
+		}
 		super.tick(amount);
 	}
 	public void finishTick(double amount) {

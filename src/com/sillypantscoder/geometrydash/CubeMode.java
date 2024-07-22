@@ -1,28 +1,36 @@
 package com.sillypantscoder.geometrydash;
 
+import java.awt.Color;
+
+import com.sillypantscoder.gdgenetic.Surface;
+import com.sillypantscoder.geometrydash.tile.Tile;
+
 public class CubeMode extends GameMode {
 	public CubeMode(Player player) {
 		super(player);
 	}
-	public static String getIcon() {
-		return "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 18 18\">\n" +
-				"\t<style>\n" +
-				"\t\t.outline {\n" +
-				"\t\t\tfill: black;\n" +
-				"\t\t}\n" +
-				"\t\t.middle {\n" +
-				"\t\t\tfill: #00ff21;\n" +
-				"\t\t}\n" +
-				"\t\t.inside {\n" +
-				"\t\t\tfill: #00f2ff;\n" +
-				"\t\t}\n" +
-				"\t</style>\n" +
-				"\t<path class=\"outline\" d=\"M 0 0 L 18 0 L 18 18 L 0 18 Z M 1 1 L 1 17 L 17 17 L 17 1 Z\" />\n" +
-				"\t<path class=\"middle\" d=\"M 1 1 L 17 1 L 17 17 L 1 17 Z M 5 5 L 5 13 L 13 13 L 13 5 Z\" />\n" +
-				"\t<path class=\"outline\" d=\"M 6 6 L 12 6 L 12 12 L 6 12 Z M 7 7 L 7 11 L 11 11 L 11 7 Z\" />\n" +
-				"\t<path class=\"outline\" d=\"M 4 4 L 14 4 L 14 14 L 4 14 Z M 5 5 L 5 13 L 13 13 L 13 5 Z\" />\n" +
-				"\t<rect class=\"inside\" x=\"7\" y=\"7\" width=\"4\" height=\"4\" />\n" +
-				"</svg>";
+	public Surface getIcon() {
+		Surface s = new Surface(Tile.RENDER_TILE_SIZE, Tile.RENDER_TILE_SIZE, new Color(0, 0, 0, 0));
+		Color[] bands = new Color[] {
+			new Color(0, 0, 0, 255),
+			new Color(0, 255, 33, 255),
+			new Color(0, 255, 33, 255),
+			new Color(0, 255, 33, 255),
+			new Color(0, 0, 0, 255),
+			new Color(0, 0, 0, 0),
+			new Color(0, 0, 0, 0),
+			new Color(0, 0, 0, 255),
+			new Color(0, 242, 255, 255),
+			new Color(0, 242, 255, 255)
+		};
+		for (int i = 0; i < bands.length; i++) {
+			int j = (s.get_width() - 1) - i;
+			s.drawLine(bands[i], i, i, i, j, 1);
+			s.drawLine(bands[i], i, i, j, i, 1);
+			s.drawLine(bands[i], j, j, i, j, 1);
+			s.drawLine(bands[i], j, j, j, i, 1);
+		}
+		return s;
 	}
 	public void handleGround(double groundHeight) {
 		double targetRotation = (Math.floor((this.player.rotation - 45) / 90) * 90) + 90;

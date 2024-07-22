@@ -16,14 +16,6 @@ public abstract class GravityPortal extends Portal {
 		player.gravity = getGravity();
 	}
 	public int[][] drawForNetwork() {
-		if (view.player.gravity == this.getGravity()) {
-			return new int[][] {
-				new int[] { 0, 0, 0, 0 },
-				new int[] { 0, 0, 0, 0 },
-				new int[] { 0, 0, 0, 0 },
-				new int[] { 0, 0, 0, 0 }
-			};
-		}
 		return new int[][] {
 			new int[] { 4, 4, 4, 4 },
 			new int[] { 4, 4, 4, 4 },

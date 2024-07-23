@@ -16,7 +16,7 @@ public class NetworkEvaluator {
 	public static final int POINTS_PER_FRAME = 1;
 	public static final int JUMP_PENALTY = -3;
 	public static final int POINTLESS_JUMP_PENALTY = -4;
-	public static final int VIDEO_MIN_OUTPUT_SCORE = 200;
+	public static final int VIDEO_MIN_OUTPUT_SCORE = 100;
 	public static void main(String[] args) {
 		// Level Generation
 		View v = LevelGeneration.generateLevel();
@@ -107,13 +107,16 @@ public class NetworkEvaluator {
 			return (Math.floor(playery * 4.0) / 4.0) - 2.0;
 		}
 		public static ArrayList<Double> getNetworkInputs(View view) {
+			return getNetworkInputs(view, view.player.gravity, view.player.x, view.player.y);
+		}
+		public static ArrayList<Double> getNetworkInputs(View view, double gravity, double playerX, double playerY) {
 			ArrayList<Double> inputs = new ArrayList<Double>();
-			double cameraX = getCameraX(view.player.x);
-			double cameraY = getCameraY(view.player.y);
+			double cameraX = getCameraX(playerX);
+			double cameraY = getCameraY(playerY);
 			for (int y = 0; y < 5 * 4; y++) {
-				for (int x = 0; x < 5 * 4; x++) {
+				for (int x = 0; x < 8 * 4; x++) {
 					int readY = y;
-					if (view.player.gravity < 0) readY = ((5 * 4) - y) - 1;
+					if (gravity < 0) readY = ((5 * 4) - y) - 1;
 					ArrayList<Double> pixel = get1HPixel(view, (x / 4.0) + cameraX, (readY / 4.0) + cameraY);
 					inputs.addAll(pixel);
 				}
@@ -121,11 +124,11 @@ public class NetworkEvaluator {
 			return inputs;
 		}
 		public static Surface renderNetworkInputs(View v, double playerX, double playerY, double gravity) {
-			Surface surface = new Surface(5 * 4, 5 * 4, Color.BLACK);
+			Surface surface = new Surface(8 * 4, 5 * 4, Color.BLACK);
 			double cameraX = getCameraX(playerX);
 			double cameraY = getCameraY(playerY);
 			for (int y = 0; y < 5 * 4; y++) {
-				for (int x = 0; x < 5 * 4; x++) {
+				for (int x = 0; x < 8 * 4; x++) {
 					int readY = y;
 					if (gravity < 0) readY = ((5 * 4) - y) - 1;
 					double pixel = getPixel(v, (x / 4.0) + cameraX, (readY / 4.0) + cameraY);
@@ -137,7 +140,7 @@ public class NetworkEvaluator {
 			}
 			final int scale = 6;
 			Surface big = surface.scale_size(scale).flipVertically();
-			for (int x = 0; x < 5 * 4; x++) {
+			for (int x = 0; x < 8 * 4; x++) {
 				for (int y = 0; y < 5 * 4; y++) {
 					big.drawRect(new Color(128, 128, 128), x * scale, y * scale, scale, scale, 1);
 				}
@@ -151,7 +154,7 @@ public class NetworkEvaluator {
 			Network network = GeneticAlgorithm.createNetwork();
 			runSimulation(network, 0);
 		}
-		public static Surface renderFrame(View view, List<Double> playerX, List<Double> playerY, double playerRotation, double gravity, List<Double> clickX, List<Double> clickY, boolean hasDied) {
+		public static Surface renderScene(View view, List<Double> playerX, List<Double> playerY, double playerRotation, double gravity, List<Double> clickX, List<Double> clickY, boolean hasDied) {
 			// 1. Render the tiles
 			Function<Double, Integer> cx = x -> (int)(Math.ceil(          (x + 2)           * Tile.RENDER_TILE_SIZE));
 			Function<Double, Integer> cn = n -> (int)(Math.ceil(             n              * Tile.RENDER_TILE_SIZE));
@@ -216,15 +219,22 @@ public class NetworkEvaluator {
 				int clickPixelY = cy.apply(clickY.get(i) + 0.5);
 				surface.drawRect(new Color(255, 100, 0), clickPixelX - 3, clickPixelY - 3, 6, 6);
 			}
-			return Surface.combineVertically(new Surface[] { surface, Rendering.renderNetworkInputs(view, playerRect.x, playerRect.y, gravity) }, Color.BLACK);
+			return surface;
 		}
-		public static void saveVideo(View view, ArrayList<Double> playerX, ArrayList<Double> playerY, ArrayList<Double> playerRotation, ArrayList<Double> playerGravity, ArrayList<Double> clickX, ArrayList<Double> clickY, int filename) {
+		public static Surface renderFrame(Network network, View view, ArrayList<Double> playerX, ArrayList<Double> playerY, ArrayList<Double> playerRotation, ArrayList<Double> playerGravity, ArrayList<Double> clickX, ArrayList<Double> clickY, int i, boolean hasDied) {
+			Surface scene = renderScene(view, playerX.subList(0, i + 1), playerY.subList(0, i + 1), playerRotation.get(i), playerGravity.get(i), clickX, clickY, hasDied);
+			return Surface.combineVertically(new Surface[] {
+				scene,
+				Rendering.renderNetworkInputs(view, playerX.get(i), playerY.get(i), playerGravity.get(i))
+			}, Color.BLACK);
+		}
+		public static void saveVideo(Network network, View view, ArrayList<Double> playerX, ArrayList<Double> playerY, ArrayList<Double> playerRotation, ArrayList<Double> playerGravity, ArrayList<Double> clickX, ArrayList<Double> clickY, int filename) {
 			// Make the images
 			Surface[] list = new Surface[playerX.size() + 1];
 			for (int i = 0; i < playerX.size(); i++) {
-				list[i] = renderFrame(view, playerX.subList(0, i + 1), playerY.subList(0, i + 1), playerRotation.get(i), playerGravity.get(i), clickX, clickY, false);
+				list[i] = renderFrame(network, view, playerX, playerY, playerRotation, playerGravity, clickX, clickY, i, false);
 			}
-			list[playerX.size()] = renderFrame(view, playerX, playerY, playerRotation.get(playerRotation.size() - 1), playerGravity.get(playerGravity.size() - 1), clickX, clickY, true);
+			list[playerX.size()] = renderFrame(network, view, playerX, playerY, playerRotation, playerGravity, clickX, clickY, playerX.size() - 1, true);
 			// Save the images
 			String fn = "score" + view.agentScore + "_network" + filename;
 			if (new File("output_videogen/" + fn).exists()) {
@@ -242,8 +252,10 @@ public class NetworkEvaluator {
 			}
 			// Create the video
 			try {
-				ProcessBuilder builder = new ProcessBuilder("ffmpeg", "-n", "-framerate", "40", "-pattern_type", "glob", "-i", "output_videogen/" + fn + "/*.png", "-c:v", "libx264", "-pix_fmt", "yuv420p", "outputs/" + fn + ".mp4");
+				ProcessBuilder builder = new ProcessBuilder("ffmpeg", "-n", "-framerate", "60", "-pattern_type", "glob", "-i", "output_videogen/" + fn + "/*.png", "-c:v", "libx264", "-pix_fmt", "yuv420p", "outputs/" + fn + ".mp4");
 				// builder.inheritIO();
+				// builder.redirectOutput(new File("log.txt"));
+				// builder.redirectError(new File("log.txt"));
  				Process process = builder.start();
 				process.waitFor();
 				Process process2 = new ProcessBuilder("rm", "-r", "output_videogen/" + fn).start();
@@ -253,6 +265,7 @@ public class NetworkEvaluator {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+			System.exit(0);
 		}
 		public static int runSimulation(Network network, int filename) {
 			View view = LevelGeneration.generateLevel();
@@ -291,7 +304,7 @@ public class NetworkEvaluator {
 			}
 			// Save the image
 			if (view.agentScore >= VIDEO_MIN_OUTPUT_SCORE) {
-				saveVideo(view, playerX, playerY, playerRotation, playerGravity, clickX, clickY, filename);
+				saveVideo(network, view, playerX, playerY, playerRotation, playerGravity, clickX, clickY, filename);
 				// System.out.println("\t[Video saved to file: " + fn + "]");
 			}
 			return view.agentScore;

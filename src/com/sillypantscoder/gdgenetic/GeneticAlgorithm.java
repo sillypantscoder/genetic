@@ -28,7 +28,7 @@ public class GeneticAlgorithm {
 	}
 	public static Network createNetwork() {
 		// Create a compatible network.
-		return Network.createZeroLayer(5 * 5 * 4 * 4 * 5); // 5: Height  5: Width  4: Block height  4: Block width  5: Pixel depth
+		return Network.createZeroLayer(5 * 8 * 4 * 4 * 5); // 5: Height  8: Width  4: Block height  4: Block width  5: Pixel depth
 	}
 	public static Network alterNetwork(Network input) {
 		Network currentNetwork = input.copy();

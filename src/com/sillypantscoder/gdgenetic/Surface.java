@@ -2,6 +2,7 @@ package com.sillypantscoder.gdgenetic;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -141,8 +142,10 @@ public class Surface {
 	}
 	public static Surface renderText(int size, String text, Color color) {
 		// Measure the text
+		Font font = new Font("Monospaced", 0, size);
 		Surface measure = new Surface(1, 1, Color.BLACK);
 		Graphics2D big = (Graphics2D)(measure.img.getGraphics());
+		big.setFont(font);
 		FontMetrics fm = big.getFontMetrics();
 		Surface ret = new Surface(fm.stringWidth(text), fm.getHeight(), new Color(0, 0, 0, 0));
 		// Draw the text

@@ -120,20 +120,20 @@ public class LevelGeneration {
 	}
 	public static Structure makeLongBlocks() {
 		ArrayList<Tile> tiles = new ArrayList<Tile>();
-		int width = 3 + random.nextInt(4);
+		int width = 2 + random.nextInt(3);
 		int numInner = 1 + random.nextInt(2);
 		for (int i = 0; i < numInner; i++) {
 			Structure inner = getRandomStructure().get();
-			if (random.nextDouble() < 0.4) inner = makeLongBlocks();
+			if (random.nextDouble() < 0.3) inner = makeLongBlocks();
 			inner.shift(width, 1);
 			tiles.addAll(inner.tiles());
 			width += inner.width;
 		}
-		width += 1 + random.nextInt(3);
+		width += random.nextInt(3);
 		for (int i = 0; i < width; i++) {
 			tiles.add(new BasicBlock(3 + i, 0));
 		}
-		return new Structure(tiles, 4 + width);
+		return new Structure(tiles, 3 + width);
 	}
 	public static Structure makeCLGJump() {
 		// can't let go jump (rotation doesn't work :/)
@@ -145,8 +145,8 @@ public class LevelGeneration {
 	}
 	public static Structure makeDontJump() {
 		ArrayList<Tile> tiles = new ArrayList<Tile>();
-		int padStart = 1 + random.nextInt(2);
-		int padEnd = 1 + random.nextInt(2);
+		int padStart = 2 + random.nextInt(1);
+		int padEnd = 0 + random.nextInt(3);
 		int n = 1 + random.nextInt(3);
 		for (int i = 0; i < n; i++) {
 			tiles.add(new BasicBlock(padStart + i, 1));
@@ -187,7 +187,9 @@ public class LevelGeneration {
 	}
 	public static Structure makeLongUpsideDownSection() {
 		ArrayList<Tile> tiles = new ArrayList<Tile>();
+		// Prompt the player to jump
 		tiles.add(new BasicSpike(4, 0));
+		// Switch gravity
 		if (random.nextBoolean()) {
 			tiles.add(new ReverseGravityPortal(4, 2));
 		} else {
@@ -196,6 +198,7 @@ public class LevelGeneration {
 			tiles.add(new BasicSpike(6, 0));
 			tiles.add(new BasicSpike(7, 0));
 		}
+		// Generate inner structures
 		int width = 5;
 		int numInner = 1 + random.nextInt(4);
 		for (int i = 0; i < numInner; i++) {
@@ -207,17 +210,21 @@ public class LevelGeneration {
 			tiles.addAll(inner.tiles());
 			width += inner.width;
 		}
-		for (int i = 0; i < width - 1; i++) {
+		// Generate floor
+		for (int i = 0; i < width + 3; i++) {
 			tiles.add(new BasicBlock(5 + i, 5));
 		}
+		// Prompt the player to jump
+		tiles.add(new BasicSpike(4 + width, 4));
+		tiles.add(new BasicSpike(5 + width, 4));
+		tiles.add(new BasicSpike(6 + width, 4));
+		tiles.add(new BasicSpike(7 + width, 4));
+		// Switch gravity back
 		if (random.nextBoolean()) {
 			tiles.add(new NormalGravityPortal(5 + width, 2));
 		} else {
 			tiles.add(new GravityOrb(5 + width, 2));
-			tiles.add(new BasicBlock(6 + width, 3));
 		}
-		tiles.add(new BasicBlock(6 + width, 4));
-		tiles.add(new BasicSpike(6 + width, 5));
 		return new Structure(tiles, 6 + width);
 	}
 }

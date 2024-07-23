@@ -1,6 +1,7 @@
 package com.sillypantscoder.gdgenetic;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,17 +44,18 @@ public class Main {
 			// Find which network is best
 			Network best = GeneticAlgorithm.purgeNetworkList(networkList, 1, i + 1).get(0);
 			if (SAVE_NN_FILES || i == totalIterations - 1 || (i + 1) % 25 == 0) {
-				String filename = "outputs/network" + (i + 1) + ".txt";
+				String filename = "outputs/network" + (i + 1);
+				while (new File(filename + ".txt").exists()) filename += "_";
 				try {
-					BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
+					BufferedWriter writer = new BufferedWriter(new FileWriter(filename + ".txt"));
 					writer.write(best.save());
 					writer.close();
-					System.out.println("\t[AI saved to file: " + filename + "]");
+					System.out.println("\t[AI saved to file: " + filename + ".txt]");
 				} catch (IOException e) {
 					System.out.println("WARNING!!! AI FAILED TO SAVE:");
 					e.printStackTrace();
 				}
-				best.visualize(new NetworkNode[0]).save(filename.substring(0, filename.length() - 3));
+				best.visualize(new NetworkNode[0]).save(filename);
 			}
 			NetworkEvaluator.VideoMaker.runSimulation(best, i + 1);
 			NetworkEvaluator.VideoMaker.runSimulation(best, i + 1);

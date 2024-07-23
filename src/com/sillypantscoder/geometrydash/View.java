@@ -50,7 +50,7 @@ public class View {
 		double n_frames = Math.ceil(Math.abs(this.player.vy * 4) + 1);
 		for (int i = 0; i < n_frames; i++) {
 			if (this.hasWon || this.hasDied) return;
-			this.tick(1 / n_frames);
+			this.tick(0.6 / n_frames);
 		}
 		// Score
 		agentScore += NetworkEvaluator.POINTS_PER_FRAME;

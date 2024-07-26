@@ -23,8 +23,6 @@ public class Test {
 		System.out.print(Math.round(v.player.y * 100) / 100.0);
 		System.out.print(" | vy: ");
 		System.out.print(Math.round(v.player.vy * 100) / 100.0);
-		System.out.print(" | has won: ");
-		System.out.print(v.hasWon);
 		System.out.print(" | has lost: ");
 		System.out.println(v.hasDied);
 	}

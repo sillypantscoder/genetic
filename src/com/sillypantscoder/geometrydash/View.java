@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import com.sillypantscoder.geometrydash.tile.Tile;
 import com.sillypantscoder.gdgenetic.LevelGeneration;
 import com.sillypantscoder.gdgenetic.NetworkEvaluator;
+import com.sillypantscoder.gdgenetic.NetworkEvaluator.Snapshot;
 
 public class View {
 	public ArrayList<Tile> tiles;
 	public Player player;
 	public boolean isPressing = false;
 	public boolean hasStartedPressing = false;
-	public boolean hasWon = false;
 	public boolean hasDied = false;
 	public int agentScore = 0;
 	public int generationX = 0;
@@ -49,7 +49,7 @@ public class View {
 	public void timeTick() {
 		double n_frames = Math.ceil(Math.abs(this.player.vy * 4) + 1);
 		for (int i = 0; i < n_frames; i++) {
-			if (this.hasWon || this.hasDied) return;
+			if (this.hasDied) return;
 			this.tick(0.6 / n_frames);
 		}
 		// Score
@@ -69,5 +69,8 @@ public class View {
 	public void stopPressing() {
 		this.hasStartedPressing = false;
 		this.isPressing = false;
+	}
+	public Snapshot capture() {
+		return new Snapshot(player.x, player.y, player.rotation, player.gravity, hasStartedPressing, hasDied);
 	}
 }

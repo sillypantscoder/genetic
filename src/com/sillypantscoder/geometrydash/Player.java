@@ -72,7 +72,6 @@ public class Player extends SceneItem {
 			}
 		}
 		this.mode.checkJump(amount);
-		if (this.x > this.view.getStageWidth()) this.view.hasWon = true;
 	}
 	public void destroy() {
 		super.destroy();

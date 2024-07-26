@@ -59,15 +59,23 @@ public class LevelGeneration {
 	}
 	public static Supplier<Structure> getRandomStructure() {
 		ArrayList<Supplier<Structure>> structures = new ArrayList<Supplier<Structure>>();
-		structures.add(() -> makeSpike());
-		structures.add(() -> makeSMSet());
-		structures.add(() -> makeLongBlocks());
-		structures.add(() -> makeCLGJump());
-		structures.add(() -> makeDontJump());
-		structures.add(() -> makeOrb());
-		structures.add(() -> makeOrbTower());
-		structures.add(() -> makeTowerOrb());
-		structures.add(() -> makeLongUpsideDownSection());
+		structures.add(LevelGeneration::makeSpike);
+		structures.add(LevelGeneration::makeSMSet);
+		structures.add(LevelGeneration::makeLongBlocks);
+		structures.add(LevelGeneration::makeCLGJump);
+		structures.add(LevelGeneration::makeDontJump);
+		structures.add(LevelGeneration::makeOrb);
+		structures.add(LevelGeneration::makeOrbTower);
+		structures.add(LevelGeneration::makeTowerOrb);
+		structures.add(LevelGeneration::makeLongUpsideDownSection);
+		structures.add(LevelGeneration::makeSunkenSpikes);
+		structures.add(LevelGeneration::makeLessSunkenSpikes);
+		structures.add(LevelGeneration::makeSunkenSpikes);
+		structures.add(LevelGeneration::makeLessSunkenSpikes);
+		structures.add(LevelGeneration::makeSunkenSpikes);
+		structures.add(LevelGeneration::makeLessSunkenSpikes);
+		structures.add(LevelGeneration::makeSunkenSpikes);
+		structures.add(LevelGeneration::makeLessSunkenSpikes);
 		Supplier<Structure> s = structures.get(new Random().nextInt(structures.size()));
 		return s;
 	}
@@ -226,5 +234,29 @@ public class LevelGeneration {
 			tiles.add(new GravityOrb(5 + width, 2));
 		}
 		return new Structure(tiles, 6 + width);
+	}
+	public static Structure makeSunkenSpikes() {
+		return new Structure(new Tile[] {
+			new BasicBlock(4, 0),
+			new BasicBlock(4, 1),
+			new BasicSpike(5, 0),
+			new BasicSpike(6, 0),
+			new BasicSpike(7, 0),
+			new BasicSpike(8, 0),
+			new BasicBlock(9, 0),
+			new BasicBlock(9, 1)
+		}, 13);
+	}
+	public static Structure makeLessSunkenSpikes() {
+		return new Structure(new Tile[] {
+			new BasicBlock(4, 0),
+			new BasicBlock(5, 0),
+			new BasicSpike(6, 0),
+			new BasicSpike(7, 0),
+			new BasicSpike(8, 0),
+			new BasicSpike(9, 0),
+			new BasicBlock(10, 0),
+			new BasicBlock(11, 0)
+		}, 15);
 	}
 }

@@ -16,7 +16,8 @@ public class NetworkEvaluator {
 	public static final int POINTS_PER_FRAME = 1;
 	public static final int JUMP_PENALTY = -3;
 	public static final int POINTLESS_JUMP_PENALTY = -4;
-	public static final int VIDEO_MIN_OUTPUT_SCORE = 100;
+	public static final int VIDEO_MIN_OUTPUT_SCORE = 200;
+	public static final boolean RENDER_HITBOXES = false;
 	public static void main(String[] args) {
 		// Level Generation
 		View v = LevelGeneration.generateLevel();
@@ -53,6 +54,22 @@ public class NetworkEvaluator {
 		Network network = Network.createZeroLayer(5 * 5 * 3);
 		double score = evaluateNetwork(network, 0);
 		System.out.println(score);
+	}
+	public static class Snapshot {
+		public double playerX;
+		public double playerY;
+		public double playerRotation;
+		public double playerGravity;
+		public boolean clicked;
+		public boolean hasDied;
+		public Snapshot(double playerX, double playerY, double playerRotation, double playerGravity, boolean clicked, boolean hasDied) {
+			this.playerX = playerX;
+			this.playerY = playerY;
+			this.playerRotation = playerRotation;
+			this.playerGravity = playerGravity;
+			this.clicked = clicked;
+			this.hasDied = hasDied;
+		}
 	}
 	public static class Rendering {
 		public static int getPixel(View view, double x, double y) {
@@ -107,30 +124,30 @@ public class NetworkEvaluator {
 			return (Math.floor(playery * 4.0) / 4.0) - 2.0;
 		}
 		public static ArrayList<Double> getNetworkInputs(View view) {
-			return getNetworkInputs(view, view.player.gravity, view.player.x, view.player.y);
+			return getNetworkInputs(view, view.capture());
 		}
-		public static ArrayList<Double> getNetworkInputs(View view, double gravity, double playerX, double playerY) {
+		public static ArrayList<Double> getNetworkInputs(View view, Snapshot s) {
 			ArrayList<Double> inputs = new ArrayList<Double>();
-			double cameraX = getCameraX(playerX);
-			double cameraY = getCameraY(playerY);
+			double cameraX = getCameraX(s.playerX);
+			double cameraY = getCameraY(s.playerY);
 			for (int y = 0; y < 5 * 4; y++) {
 				for (int x = 0; x < 8 * 4; x++) {
 					int readY = y;
-					if (gravity < 0) readY = ((5 * 4) - y) - 1;
+					if (s.playerGravity < 0) readY = ((5 * 4) - y) - 1;
 					ArrayList<Double> pixel = get1HPixel(view, (x / 4.0) + cameraX, (readY / 4.0) + cameraY);
 					inputs.addAll(pixel);
 				}
 			}
 			return inputs;
 		}
-		public static Surface renderNetworkInputs(View v, double playerX, double playerY, double gravity) {
+		public static Surface renderNetworkInputs(View v, Snapshot s) {
 			Surface surface = new Surface(8 * 4, 5 * 4, Color.BLACK);
-			double cameraX = getCameraX(playerX);
-			double cameraY = getCameraY(playerY);
+			double cameraX = getCameraX(s.playerX);
+			double cameraY = getCameraY(s.playerY);
 			for (int y = 0; y < 5 * 4; y++) {
 				for (int x = 0; x < 8 * 4; x++) {
 					int readY = y;
-					if (gravity < 0) readY = ((5 * 4) - y) - 1;
+					if (s.playerGravity < 0) readY = ((5 * 4) - y) - 1;
 					double pixel = getPixel(v, (x / 4.0) + cameraX, (readY / 4.0) + cameraY);
 					if (pixel == 1) surface.set_at(x, y, Color.BLUE);
 					if (pixel == 2) surface.set_at(x, y, Color.RED);
@@ -154,12 +171,14 @@ public class NetworkEvaluator {
 			Network network = GeneticAlgorithm.createNetwork();
 			runSimulation(network, 0);
 		}
-		public static Surface renderScene(View view, List<Double> playerX, List<Double> playerY, double playerRotation, double gravity, List<Double> clickX, List<Double> clickY, boolean hasDied) {
-			// 1. Render the tiles
+		@SuppressWarnings("unused")
+		public static Surface renderScene(View view, List<Snapshot> record) {
+			// 1. Setup
 			Function<Double, Integer> cx = x -> (int)(Math.ceil(          (x + 2)           * Tile.RENDER_TILE_SIZE));
 			Function<Double, Integer> cn = n -> (int)(Math.ceil(             n              * Tile.RENDER_TILE_SIZE));
 			Function<Double, Integer> cy = y -> (int)(Math.ceil((view.getStageHeight() - y) * Tile.RENDER_TILE_SIZE));
 			Surface surface = new Surface(cx.apply(view.getStageWidth()), cy.apply(0.0) + 1, new Color(0, 125, 255));
+			// 2. Draw the tiles
 			for (int i = 0; i < view.tiles.size(); i++) {
 				Tile t = view.tiles.get(i);
 				Rect rect = new Rect(t.x, t.y, 1, 1);
@@ -170,33 +189,34 @@ public class NetworkEvaluator {
 					cn.apply(rect.h)); // h
 				t.drawForHuman(surface, pxRect);
 				// hitboxes for testing
-				/* if (t instanceof TileDeath) {
-					Rect rect2 = t.getRotatedRect();
+				if (RENDER_HITBOXES && t instanceof com.sillypantscoder.geometrydash.tile.TileDeath) {
+					Rect rect2 = t.getRect();
 					surface.drawRect(Color.RED,
 						cx.apply(rect2.x),
 						cy.apply(rect2.y) - (cn.apply(rect2.h) - 1),
 						cn.apply(rect2.w),
 						cn.apply(rect2.h));
-				} */
+				}
 			}
 			// 3. Simulation parameters
 			int previousX = -10;
 			int previousY = 0;
 			int px = 0;
 			int py = 0;
-			// 2. Go through the simulation
-			for (int i = 0; i < playerX.size(); i++) {
-				px = cx.apply(playerX.get(i) + 0.5);
-				py = cy.apply(playerY.get(i) + 0.5);
+			// 4. Go through the simulation
+			for (int i = 0; i < record.size(); i++) {
+				px = cx.apply(record.get(i).playerX + 0.5);
+				py = cy.apply(record.get(i).playerY + 0.5);
 				// Draw path
 				surface.drawLine(new Color(0, 255, 0), previousX - 1, previousY, px, py, 1);
 				// Update previous position
 				previousX = px;
 				previousY = py;
 			}
-			// 3. Draw death effects or player
-			Rect playerRect = new Rect(playerX.get(playerX.size() - 1), playerY.get(playerY.size() - 1), 1, 1);
-			if (hasDied) {
+			// 5. Draw death effects or player
+			Snapshot last = record.get(record.size() - 1);
+			Rect playerRect = new Rect(last.playerX, last.playerY, 1, 1);
+			if (last.hasDied) {
 				// hitbox
 				surface.drawRect(Color.RED, cx.apply(playerRect.x), cy.apply(playerRect.y) - cn.apply(playerRect.h), cn.apply(playerRect.w), cn.apply(playerRect.h), 1);
 				// x
@@ -210,31 +230,58 @@ public class NetworkEvaluator {
 				surface.set_at(px + 1, py + 1, Color.RED);
 				surface.set_at(px + 2, py + 2, Color.RED);
 			} else {
-				surface.blit(view.player.mode.getIcon(), cx.apply(playerRect.centerX()), cy.apply(playerRect.centerY()), playerRotation);
+				surface.blit(view.player.mode.getIcon(), cx.apply(playerRect.centerX()), cy.apply(playerRect.centerY()), last.playerRotation);
 			}
-			// 4. Add the clicks
-			for (int i = 0; i < clickX.size(); i++) {
-				if (clickX.get(i) > playerRect.x) continue;
-				int clickPixelX = cx.apply(clickX.get(i) + 0.5);
-				int clickPixelY = cy.apply(clickY.get(i) + 0.5);
+			// 6. Add the clicks
+			for (int i = 0; i < record.size(); i++) {
+				if (! record.get(i).clicked) continue;
+				int clickPixelX = cx.apply(record.get(i).playerX + 0.5);
+				int clickPixelY = cy.apply(record.get(i).playerY + 0.5);
 				surface.drawRect(new Color(255, 100, 0), clickPixelX - 3, clickPixelY - 3, 6, 6);
 			}
 			return surface;
 		}
-		public static Surface renderFrame(Network network, View view, ArrayList<Double> playerX, ArrayList<Double> playerY, ArrayList<Double> playerRotation, ArrayList<Double> playerGravity, ArrayList<Double> clickX, ArrayList<Double> clickY, int i, boolean hasDied) {
-			Surface scene = renderScene(view, playerX.subList(0, i + 1), playerY.subList(0, i + 1), playerRotation.get(i), playerGravity.get(i), clickX, clickY, hasDied);
+		public static Surface renderDecisions(Network network, View view, ArrayList<Snapshot> record, int i) {
+			final int height = 50;
+			double maxX = (record.get(record.size() - 1).playerX + 3) * Tile.RENDER_TILE_SIZE;
+			Surface s = new Surface((int)(maxX), height, new Color(0, 0, 70));
+			s.drawRect(new Color(60, 60, 0), 0, 0, (int)(maxX), height / 2);
+			// Draw lines
+			int previousX = 0;
+			int previousY = height / 2;
+			for (int frame = 0; frame <= i; frame++) {
+				int barX = (int)((record.get(frame).playerX + 3) * Tile.RENDER_TILE_SIZE);
+				// Draw indicator
+				if (frame == i) {
+					s.drawLine(Color.YELLOW, barX, 0, barX, height, 1);
+				}
+				// Find current Y
+				double probability = network.evaluate(Rendering.getNetworkInputs(view, record.get(frame))).get(0);
+				probability = (probability + 1) / 2;
+				int barY = (int)(height * (1 - probability));
+				// Draw line
+				s.drawLine(Color.RED, previousX, previousY, barX, barY, 2);
+				// Continue
+				previousX = barX;
+				previousY = barY;
+			}
+			// Return
+			return s;
+		}
+		public static Surface renderFrame(Network network, View view, ArrayList<Snapshot> record, int i) {
+			Surface scene = renderScene(view, record.subList(0, i + 1));
 			return Surface.combineVertically(new Surface[] {
 				scene,
-				Rendering.renderNetworkInputs(view, playerX.get(i), playerY.get(i), playerGravity.get(i))
+				Rendering.renderNetworkInputs(view, record.get(i)),
+				renderDecisions(network, view, record, i)
 			}, Color.BLACK);
 		}
-		public static void saveVideo(Network network, View view, ArrayList<Double> playerX, ArrayList<Double> playerY, ArrayList<Double> playerRotation, ArrayList<Double> playerGravity, ArrayList<Double> clickX, ArrayList<Double> clickY, int filename) {
+		public static void saveVideo(Network network, View view, ArrayList<Snapshot> record, int filename) {
 			// Make the images
-			Surface[] list = new Surface[playerX.size() + 1];
-			for (int i = 0; i < playerX.size(); i++) {
-				list[i] = renderFrame(network, view, playerX, playerY, playerRotation, playerGravity, clickX, clickY, i, false);
+			Surface[] list = new Surface[record.size()];
+			for (int i = 0; i < record.size(); i++) {
+				list[i] = renderFrame(network, view, record, i);
 			}
-			list[playerX.size()] = renderFrame(network, view, playerX, playerY, playerRotation, playerGravity, clickX, clickY, playerX.size() - 1, true);
 			// Save the images
 			String fn = "score" + view.agentScore + "_network" + filename;
 			if (new File("output_videogen/" + fn).exists()) {
@@ -265,18 +312,11 @@ public class NetworkEvaluator {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			System.exit(0);
 		}
 		public static int runSimulation(Network network, int filename) {
 			View view = LevelGeneration.generateLevel();
 			// Simulation parameters
-			ArrayList<Double> playerX = new ArrayList<Double>();
-			ArrayList<Double> playerY = new ArrayList<Double>();
-			ArrayList<Double> playerRotation = new ArrayList<Double>();
-			ArrayList<Double> playerGravity = new ArrayList<Double>();
-			ArrayList<Double> clickX = new ArrayList<Double>();
-			ArrayList<Double> clickY = new ArrayList<Double>();
-			boolean previousDecision = false;
+			ArrayList<Snapshot> record = new ArrayList<Snapshot>();
 			// Run the simulation
 			while (true) {
 				boolean decision = getNetworkDecision(view, network);
@@ -285,26 +325,18 @@ public class NetworkEvaluator {
 				} else {
 					view.stopPressing();
 				}
+				record.add(view.capture());
 				view.timeTick();
-				// Draw
-				playerX.add(view.player.x);
-				playerY.add(view.player.y);
-				playerRotation.add(view.player.rotation);
-				playerGravity.add(view.player.gravity);
-				if (decision && !previousDecision) {
-					clickX.add(view.player.x);
-					clickY.add(view.player.y);
-				}
-				previousDecision = decision;
-				// Finish
-				if (view.hasWon || view.hasDied) {
+				// Continue
+				if (view.hasDied) {
 					// The simulation is over
 					break;
 				}
 			}
+			record.add(view.capture());
 			// Save the image
 			if (view.agentScore >= VIDEO_MIN_OUTPUT_SCORE) {
-				saveVideo(network, view, playerX, playerY, playerRotation, playerGravity, clickX, clickY, filename);
+				saveVideo(network, view, record, filename);
 				// System.out.println("\t[Video saved to file: " + fn + "]");
 			}
 			return view.agentScore;

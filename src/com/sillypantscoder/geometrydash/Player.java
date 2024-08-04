@@ -15,23 +15,23 @@ public class Player extends SceneItem {
 		this.mode = new CubeMode(this);
 		this.setStartMode();
 	}
-	public Rect getGeneralRect() {
+	public DoubleRect getGeneralRect() {
 		return this.mode.getRect();
 	}
-	public Rect getDeathRect() {
+	public DoubleRect getDeathRect() {
 		return this.getGeneralRect().relative(0.1, 0.1, 0.8, 0.8);
 	}
 	public static class PlayerBlockRects {
-		public Rect collideRect;
-		public Rect topRect;
-		public Rect bottomRect;
+		public DoubleRect collideRect;
+		public DoubleRect topRect;
+		public DoubleRect bottomRect;
 		public PlayerBlockRects(Player player) {
 			double margin = 0.3;
-			Rect general = player.getGeneralRect();
-			Rect maxY = general.relative(0, 1 - margin, 1, margin);
-			Rect minY = general.relative(0, 0, 1, margin);
-			Rect top = player.gravity > 0 ? maxY : minY;
-			Rect bottom = player.gravity > 0 ? minY : maxY;
+			DoubleRect general = player.getGeneralRect();
+			DoubleRect maxY = general.relative(0, 1 - margin, 1, margin);
+			DoubleRect minY = general.relative(0, 0, 1, margin);
+			DoubleRect top = player.gravity > 0 ? maxY : minY;
+			DoubleRect bottom = player.gravity > 0 ? minY : maxY;
 			// Set rects
 			this.collideRect = general.relative(0, margin, 1, 1 - (margin * 2));
 			this.topRect = top;

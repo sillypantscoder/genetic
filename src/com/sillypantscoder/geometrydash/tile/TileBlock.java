@@ -3,7 +3,7 @@ package com.sillypantscoder.geometrydash.tile;
 import java.util.Optional;
 
 import com.sillypantscoder.geometrydash.Player;
-import com.sillypantscoder.geometrydash.Rect;
+import com.sillypantscoder.geometrydash.DoubleRect;
 
 public abstract class TileBlock extends Tile {
 	public TileBlock(double x, double y) {
@@ -11,7 +11,7 @@ public abstract class TileBlock extends Tile {
 	}
 	public void collide(Player player) {
 		Player.PlayerBlockRects playerRects = new Player.PlayerBlockRects(player);
-		Rect thisRect = this.getRect();
+		DoubleRect thisRect = this.getRect();
 		if (playerRects.collideRect.colliderect(thisRect)) {
 			// The player has collided with the side of this block.
 			player.destroy(); // :(

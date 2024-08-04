@@ -3,7 +3,7 @@ package com.sillypantscoder.geometrydash.tile;
 import java.awt.Color;
 
 import com.sillypantscoder.gdgenetic.Surface;
-import com.sillypantscoder.geometrydash.Rect;
+import com.sillypantscoder.geometrydash.IntRect;
 
 public class BasicBlock extends TileBlock {
 	public BasicBlock(double x, double y) {
@@ -17,9 +17,9 @@ public class BasicBlock extends TileBlock {
 			new int[] { 1, 1, 1, 1 }
 		};
 	}
-	public void drawForHuman(Surface surface, Rect pxRect) {
-		Surface s = new Surface((int)(pxRect.w), (int)(pxRect.h), Color.WHITE);
-		int maxY = (int)(pxRect.h - 2);
+	public void drawForHuman(Surface surface, IntRect pxRect) {
+		Surface s = new Surface(pxRect.w, pxRect.h, Color.WHITE);
+		int maxY = pxRect.h - 2;
 		for (int x = 1; x < pxRect.w - 1; x++) {
 			for (int y = 0; y < maxY; y++) {
 				s.set_at(
@@ -30,6 +30,6 @@ public class BasicBlock extends TileBlock {
 				);
 			}
 		}
-		surface.blit(s, (int)(pxRect.x), (int)(pxRect.y));
+		surface.blit(s, pxRect.x, pxRect.y);
 	}
 }

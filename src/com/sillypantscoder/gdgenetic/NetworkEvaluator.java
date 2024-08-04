@@ -8,13 +8,14 @@ import java.util.List;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 
-import com.sillypantscoder.geometrydash.Rect;
+import com.sillypantscoder.geometrydash.DoubleRect;
+import com.sillypantscoder.geometrydash.IntRect;
 import com.sillypantscoder.geometrydash.View;
 import com.sillypantscoder.geometrydash.tile.Tile;
 
 public class NetworkEvaluator {
 	public static final int POINTS_PER_FRAME = 1;
-	public static final int JUMP_PENALTY = -3;
+	public static final int JUMP_PENALTY = -4;
 	public static final int POINTLESS_JUMP_PENALTY = -4;
 	public static final int VIDEO_MIN_OUTPUT_SCORE = 200;
 	public static final boolean RENDER_HITBOXES = false;
@@ -181,8 +182,8 @@ public class NetworkEvaluator {
 			// 2. Draw the tiles
 			for (int i = 0; i < view.tiles.size(); i++) {
 				Tile t = view.tiles.get(i);
-				Rect rect = new Rect(t.x, t.y, 1, 1);
-				Rect pxRect = new Rect(
+				DoubleRect rect = new DoubleRect(t.x, t.y, 1, 1);
+				IntRect pxRect = new IntRect(
 					cx.apply(rect.x), // x
 					cy.apply(rect.y) - (cn.apply(rect.h) - 1), // y
 					cn.apply(rect.w), // w
@@ -190,7 +191,7 @@ public class NetworkEvaluator {
 				t.drawForHuman(surface, pxRect);
 				// hitboxes for testing
 				if (RENDER_HITBOXES && t instanceof com.sillypantscoder.geometrydash.tile.TileDeath) {
-					Rect rect2 = t.getRect();
+					DoubleRect rect2 = t.getRect();
 					surface.drawRect(Color.RED,
 						cx.apply(rect2.x),
 						cy.apply(rect2.y) - (cn.apply(rect2.h) - 1),
@@ -215,7 +216,7 @@ public class NetworkEvaluator {
 			}
 			// 5. Draw death effects or player
 			Snapshot last = record.get(record.size() - 1);
-			Rect playerRect = new Rect(last.playerX, last.playerY, 1, 1);
+			DoubleRect playerRect = new DoubleRect(last.playerX, last.playerY, 1, 1);
 			if (last.hasDied) {
 				// hitbox
 				surface.drawRect(Color.RED, cx.apply(playerRect.x), cy.apply(playerRect.y) - cn.apply(playerRect.h), cn.apply(playerRect.w), cn.apply(playerRect.h), 1);

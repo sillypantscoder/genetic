@@ -4,7 +4,7 @@ import java.awt.Color;
 
 import com.sillypantscoder.gdgenetic.Surface;
 import com.sillypantscoder.geometrydash.Player;
-import com.sillypantscoder.geometrydash.Rect;
+import com.sillypantscoder.geometrydash.IntRect;
 
 public class GravityOrb extends Orb {
 	public GravityOrb(double x, double y) {
@@ -23,10 +23,10 @@ public class GravityOrb extends Orb {
 			new int[] { 3, 3, 3, 3 }
 		};
 	}
-	public void drawForHuman(Surface surface, Rect pxRect) {
-		Surface s = new Surface((int)(pxRect.w), (int)(pxRect.h), new Color(0, 0, 0, 0));
-		s.drawCircle(Color.WHITE, (int)(pxRect.w / 2.0), (int)(pxRect.h / 2.0), (int)(pxRect.w / 2.0) - 1, 2);
-		s.drawCircle(Color.CYAN, (int)(pxRect.w / 2.0), (int)(pxRect.h / 2.0), (int)(pxRect.w / 2.0) - 4);
-		surface.blit(s, (int)(pxRect.x), (int)(pxRect.y));
+	public void drawForHuman(Surface surface, IntRect pxRect) {
+		Surface s = new Surface(pxRect.w, pxRect.h, new Color(0, 0, 0, 0));
+		s.drawCircle(Color.WHITE, pxRect.w / 2, pxRect.h / 2, (pxRect.w / 2) - 1, 2);
+		s.drawCircle(Color.CYAN, pxRect.w / 2, pxRect.h / 2, (pxRect.w / 2) - 4);
+		surface.blit(s, pxRect.x, pxRect.y);
 	}
 }

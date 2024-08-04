@@ -4,7 +4,7 @@ import java.awt.Color;
 
 import com.sillypantscoder.gdgenetic.Surface;
 import com.sillypantscoder.geometrydash.Player;
-import com.sillypantscoder.geometrydash.Rect;
+import com.sillypantscoder.geometrydash.IntRect;
 
 public abstract class GravityPortal extends Portal {
 	public GravityPortal(int x, int y) {
@@ -23,10 +23,10 @@ public abstract class GravityPortal extends Portal {
 			new int[] { 4, 4, 4, 4 }
 		};
 	}
-	public void drawForHuman(Surface surface, Rect pxRect) {
-		Surface s = new Surface((int)(pxRect.w), (int)(pxRect.h * 3), new Color(0, 0, 0, 0));
-		s.drawEllipse(Color.BLACK, (int)(pxRect.w / 2.0) + 2, (int)(pxRect.h * 1.5), (int)(pxRect.w / 2.0) - 2, (int)(pxRect.h * 1.5) - 2, 4);
-		s.drawEllipse(getColor(), (int)(pxRect.w / 2.0) - 2, (int)(pxRect.h * 1.5), (int)(pxRect.w / 2.0) - 2, (int)(pxRect.h * 1.5) - 2, 4);
-		surface.blit(s, (int)(pxRect.x), (int)(pxRect.y - pxRect.h));
+	public void drawForHuman(Surface surface, IntRect pxRect) {
+		Surface s = new Surface(pxRect.w, pxRect.h * 3, new Color(0, 0, 0, 0));
+		s.drawEllipse(Color.BLACK, (pxRect.w / 2) + 2, (int)(pxRect.h * 1.5), (pxRect.w / 2) - 2, (int)(pxRect.h * 1.5) - 2, 4);
+		s.drawEllipse(getColor(), (pxRect.w / 2) - 2, (int)(pxRect.h * 1.5), (pxRect.w / 2) - 2, (int)(pxRect.h * 1.5) - 2, 4);
+		surface.blit(s, pxRect.x, pxRect.y - pxRect.h);
 	}
 }

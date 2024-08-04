@@ -1,7 +1,7 @@
 package com.sillypantscoder.geometrydash.tile;
 
 import com.sillypantscoder.geometrydash.Player;
-import com.sillypantscoder.geometrydash.Rect;
+import com.sillypantscoder.geometrydash.DoubleRect;
 
 public abstract class Portal extends Tile {
 	public boolean activated;
@@ -10,7 +10,7 @@ public abstract class Portal extends Tile {
 		super(x, y);
 		this.realheight = realheight;
 	}
-	public Rect getRect() {
+	public DoubleRect getRect() {
 		return super.getRect().relative(0, (this.realheight * -0.5) + 0.5, 1, this.realheight);
 	}
 	public void collide(Player player) {

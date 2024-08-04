@@ -1,7 +1,8 @@
 package com.sillypantscoder.geometrydash.tile;
 
 import com.sillypantscoder.geometrydash.SceneItem;
-import com.sillypantscoder.geometrydash.Rect;
+import com.sillypantscoder.geometrydash.DoubleRect;
+import com.sillypantscoder.geometrydash.IntRect;
 import com.sillypantscoder.gdgenetic.Surface;
 import com.sillypantscoder.geometrydash.Player;
 
@@ -10,8 +11,8 @@ public abstract class Tile extends SceneItem {
 	public Tile(double x, double y) {
 		super(x, y);
 	}
-	public Rect getRect() {
-		return new Rect(this.x, this.y, 1, 1);
+	public DoubleRect getRect() {
+		return new DoubleRect(this.x, this.y, 1, 1);
 	}
 	public void tick(double amount) {
 		this.collide(this.view.player);
@@ -26,5 +27,5 @@ public abstract class Tile extends SceneItem {
 			new int[] { 0, 0, 0, 0 }
 		};
 	}
-	public abstract void drawForHuman(Surface surface, Rect pxRect);
+	public abstract void drawForHuman(Surface surface, IntRect pxRect);
 }

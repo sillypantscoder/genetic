@@ -12,8 +12,8 @@ public abstract class GameMode {
 		this.player.vy -= 0.028 * this.player.gravity * amount;
 	}
 	public void checkJump(double _amount) {}
-	public Rect getRect() {
-		return new Rect(this.player.x, this.player.y, 1, 1);
+	public DoubleRect getRect() {
+		return new DoubleRect(this.player.x, this.player.y, 1, 1);
 	}
 	public abstract boolean canDieFromCeiling();
 	public abstract boolean jumpingHasEffect();

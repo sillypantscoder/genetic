@@ -2,23 +2,48 @@ package com.sillypantscoder.gdgenetic;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
 public class Main {
-	public static final boolean SAVE_NN_FILES = false;
+	public static boolean SAVE_NN_FILES = true;
+	public static final String[] LOAD_NETWORKS = new String[] {
+		"network4.txt",
+		"network5.txt",
+		"network6.txt"
+	};
 	public static void main(String[] args) {
 		// Make our network
 		Network network = GeneticAlgorithm.createNetwork();
 		ArrayList<Network> networkList = new ArrayList<Network>();
 		networkList.add(network);
+		// Load previous networks
+		for (String filename : LOAD_NETWORKS) {
+			try {
+				FileReader reader = new FileReader("outputs/" + filename);
+				StringBuilder builder = new StringBuilder();
+				int data = reader.read();
+				while (data != -1) {
+					builder.append((char)(data));
+					data = reader.read();
+				}
+				networkList.add(Network.load(builder.toString()));
+				reader.close();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 		// Initial score
 		double initialScore = NetworkEvaluator.evaluateNetworksWithoutPrintingData(networkList, 0)[0];
 		System.out.println("Initial score is: " + initialScore);
 		bar(initialScore);
 		// Run a bunch of iterations
-		int totalIterations = 35;
+		int totalIterations = 1000;
 		double previousScore = initialScore;
 		for (int i = 0; i < totalIterations + 1; i++) {
 			// Find average score for this iteration
@@ -43,7 +68,7 @@ public class Main {
 			}
 			// Find which network is best
 			Network best = GeneticAlgorithm.purgeNetworkList(networkList, 1, i + 1).get(0);
-			if (SAVE_NN_FILES || i == totalIterations - 1 || (i + 1) % 25 == 0) {
+			if (SAVE_NN_FILES || i == totalIterations - 1 || (i + 1) % 10 == 0) {
 				String filename = "outputs/network" + (i + 1);
 				while (new File(filename + ".txt").exists()) filename += "_";
 				try {
@@ -55,7 +80,7 @@ public class Main {
 					System.out.println("WARNING!!! AI FAILED TO SAVE:");
 					e.printStackTrace();
 				}
-				best.visualize(new NetworkNode[0]).save(filename);
+				// best.visualize(new NetworkNode[0]).save(filename);
 			}
 			NetworkEvaluator.VideoMaker.runSimulation(best, i + 1);
 			NetworkEvaluator.VideoMaker.runSimulation(best, i + 1);
@@ -67,7 +92,7 @@ public class Main {
 	}
 	public static void bar(double v) {
 		// ascii art :D
-		double spaces = (v - 40) * 1;
+		double spaces = (v - 50) * 1;
 		try {
 			System.out.println("\t|" + "-".repeat((int)(Math.round(spaces))) + "#");
 		} catch (IllegalArgumentException e) {

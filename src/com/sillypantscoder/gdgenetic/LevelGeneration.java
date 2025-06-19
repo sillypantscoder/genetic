@@ -74,6 +74,7 @@ public class LevelGeneration {
 		structures.add(LevelGeneration::makeDoubleOrb);
 		if (Math.random() < 0.5) structures.add(LevelGeneration::makeFakeOrb);
 		structures.add(LevelGeneration::makeOrbTower);
+		structures.add(LevelGeneration::makeOrbTower);
 		structures.add(LevelGeneration::makeTowerOrb);
 		structures.add(LevelGeneration::makeLongUpsideDownSection);
 		structures.add(LevelGeneration::makeSunkenSpikes);

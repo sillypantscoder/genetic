@@ -56,6 +56,7 @@ public class View {
 		agentScore += NetworkEvaluator.POINTS_PER_FRAME;
 		if (isPressing) agentScore += NetworkEvaluator.JUMP_PENALTY;
 		if (isPressing && !player.mode.jumpingHasEffect()) agentScore += NetworkEvaluator.POINTLESS_JUMP_PENALTY;
+		if (isPressing && player.specialJump.isPresent()) agentScore += NetworkEvaluator.SPECIAL_JUMP_BONUS;
 		// Add more
 		if (player.x > generationX - 5) {
 			LevelGeneration.appendRandomStructure(this);

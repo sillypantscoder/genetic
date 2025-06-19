@@ -17,6 +17,7 @@ public class NetworkEvaluator {
 	public static final int POINTS_PER_FRAME = 1;
 	public static final int JUMP_PENALTY = -4;
 	public static final int POINTLESS_JUMP_PENALTY = -4;
+	public static final int SPECIAL_JUMP_BONUS = 1;
 	public static final int VIDEO_MIN_OUTPUT_SCORE = 200;
 	public static final boolean RENDER_HITBOXES = false;
 	public static void main(String[] args) {
@@ -284,7 +285,7 @@ public class NetworkEvaluator {
 				list[i] = renderFrame(network, view, record, i);
 			}
 			// Save the images
-			String fn = "score" + view.agentScore + "_network" + filename;
+			String fn = "score" + view.agentScore + "_network" + filename + "_";
 			if (new File("output_videogen/" + fn).exists()) {
 				int suffix = 2;
 				while (new File("output_videogen/" + fn + suffix).exists()) suffix += 1;

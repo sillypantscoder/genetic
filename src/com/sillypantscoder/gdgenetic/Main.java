@@ -18,7 +18,7 @@ public class Main {
 		System.out.println("Initial score is: " + initialScore);
 		bar(initialScore);
 		// Run a bunch of iterations
-		int totalIterations = 1000;
+		int totalIterations = 35;
 		double previousScore = initialScore;
 		for (int i = 0; i < totalIterations + 1; i++) {
 			// Find average score for this iteration
@@ -67,7 +67,7 @@ public class Main {
 	}
 	public static void bar(double v) {
 		// ascii art :D
-		double spaces = (v - 100) * 1;
+		double spaces = (v - 40) * 1;
 		try {
 			System.out.println("\t|" + "-".repeat((int)(Math.round(spaces))) + "#");
 		} catch (IllegalArgumentException e) {

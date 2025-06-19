@@ -8,9 +8,9 @@ import java.util.Optional;
 import java.util.Random;
 
 public class GeneticAlgorithm {
-	public static final int N_MODIFICATIONS_PER_ALTER = 2;
-	public static final int N_SPLITS_PER_NETWORK = 130;
-	public static final int N_BEST_NETWORKS = 5;
+	public static final int N_MODIFICATIONS_PER_ALTER = 4;
+	public static final int N_SPLITS_PER_NETWORK = 50;
+	public static final int N_BEST_NETWORKS = 4;
 	public static void main(String[] args) {
 		// Make a network
 		Network network = createNetwork();

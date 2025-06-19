@@ -14,6 +14,7 @@ public abstract class Tile extends SceneItem {
 	public DoubleRect getRect() {
 		return new DoubleRect(this.x, this.y, 1, 1);
 	}
+	public void flip() {}
 	public void tick(double amount) {
 		this.collide(this.view.player);
 		super.tick(amount);

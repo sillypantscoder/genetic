@@ -5,9 +5,9 @@ import java.util.Optional;
 import com.sillypantscoder.geometrydash.Player;
 import com.sillypantscoder.geometrydash.DoubleRect;
 
-public abstract class TileBlock extends Tile {
-	public TileBlock(double x, double y) {
-		super(x, y);
+public abstract class TileBlock extends FlippableTile {
+	public TileBlock(double x, double y, boolean flipped) {
+		super(x, y, flipped);
 	}
 	public void collide(Player player) {
 		Player.PlayerBlockRects playerRects = new Player.PlayerBlockRects(player);

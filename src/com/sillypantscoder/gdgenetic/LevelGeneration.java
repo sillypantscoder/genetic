@@ -38,6 +38,7 @@ public class LevelGeneration {
 		public Structure flip(double newFloorY) {
 			for (int i = 0; i < tiles.length; i++) {
 				tiles[i].y = (newFloorY - tiles[i].y) - 1;
+				tiles[i].flip();
 			}
 			return this;
 		}
@@ -65,17 +66,21 @@ public class LevelGeneration {
 		structures.add(LevelGeneration::makeCLGJump);
 		structures.add(LevelGeneration::makeDontJump);
 		structures.add(LevelGeneration::makeOrb);
+		structures.add(LevelGeneration::makeOrb);
+		structures.add(LevelGeneration::makeDoubleOrb);
+		structures.add(LevelGeneration::makeDoubleOrb);
+		structures.add(LevelGeneration::makeDoubleOrb);
+		structures.add(LevelGeneration::makeDoubleOrb);
+		structures.add(LevelGeneration::makeDoubleOrb);
+		if (Math.random() < 0.5) structures.add(LevelGeneration::makeFakeOrb);
 		structures.add(LevelGeneration::makeOrbTower);
 		structures.add(LevelGeneration::makeTowerOrb);
 		structures.add(LevelGeneration::makeLongUpsideDownSection);
 		structures.add(LevelGeneration::makeSunkenSpikes);
-		structures.add(LevelGeneration::makeLessSunkenSpikes);
 		structures.add(LevelGeneration::makeSunkenSpikes);
 		structures.add(LevelGeneration::makeLessSunkenSpikes);
-		structures.add(LevelGeneration::makeSunkenSpikes);
 		structures.add(LevelGeneration::makeLessSunkenSpikes);
-		structures.add(LevelGeneration::makeSunkenSpikes);
-		structures.add(LevelGeneration::makeLessSunkenSpikes);
+		//
 		Supplier<Structure> s = structures.get(new Random().nextInt(structures.size()));
 		return s;
 	}
@@ -86,7 +91,7 @@ public class LevelGeneration {
 	}
 	public static View generateLevel() {
 		View v = new View();
-		v.tiles.add(new BasicSpike(2, 0));
+		v.tiles.add(new BasicSpike(2, 0, false));
 		v.generationX = 4;
 		v.ownTiles();
 		return v;
@@ -94,36 +99,37 @@ public class LevelGeneration {
 	// === STRUCTURES ===
 	public static Structure makeSpike() {
 		ArrayList<Tile> tiles = new ArrayList<Tile>();
-		tiles.add(new BasicSpike(3, 0));
+		tiles.add(new BasicSpike(3, 0, false));
 		if (random.nextBoolean()) {
 			return new Structure(tiles, 6);
 		} else {
-			tiles.add(new BasicSpike(4, 0));
+			tiles.add(new BasicSpike(4, 0, false));
 			if (random.nextBoolean()) {
 				return new Structure(tiles, 7);
 			} else {
-				tiles.add(new BasicSpike(5, 0));
+				tiles.add(new BasicSpike(5, 0, false));
 				return new Structure(tiles, 8);
 			}
 		}
 	}
 	public static Structure makeSMSet() {
+		// Stereo Madness set
 		return new Structure(new Tile[] {
-			new BasicSpike(3, 0),
-			new BasicSpike(4, 0),
-			new BasicSpike(5, 0),
-			new BasicBlock(6, 0),
-			new BasicSpike(7, 0),
-			new BasicSpike(8, 0),
-			new BasicSpike(9, 0),
-			new BasicBlock(10, 0),
-			new BasicBlock(10, 1),
-			new BasicSpike(11, 0),
-			new BasicSpike(12, 0),
-			new BasicSpike(13, 0),
-			new BasicBlock(14, 0),
-			new BasicBlock(14, 1),
-			new BasicBlock(14, 2)
+			new BasicSpike(3, 0, false),
+			new BasicSpike(4, 0, false),
+			new BasicSpike(5, 0, false),
+			new BasicBlock(6, 0, false),
+			new BasicSpike(7, 0, false),
+			new BasicSpike(8, 0, false),
+			new BasicSpike(9, 0, false),
+			new BasicBlock(10, 0, false),
+			new BasicBlock(10, 1, false),
+			new BasicSpike(11, 0, false),
+			new BasicSpike(12, 0, false),
+			new BasicSpike(13, 0, false),
+			new BasicBlock(14, 0, false),
+			new BasicBlock(14, 1, false),
+			new BasicBlock(14, 2, false)
 		}, 15);
 	}
 	public static Structure makeLongBlocks() {
@@ -139,72 +145,101 @@ public class LevelGeneration {
 		}
 		width += random.nextInt(3);
 		for (int i = 0; i < width; i++) {
-			tiles.add(new BasicBlock(3 + i, 0));
+			tiles.add(new BasicBlock(3 + i, 0, false));
 		}
 		return new Structure(tiles, 3 + width);
 	}
 	public static Structure makeCLGJump() {
-		// can't let go jump (rotation doesn't work :/)
+		// can't let go jump
 		return new Structure(new Tile[] {
-			new BasicBlock(4, 1),
-			new BasicSpike(4, 2),
-			new BasicSpike(6, 0)
+			new BasicBlock(4, 2, false),
+			new BasicSpike(4, 1, true),
+			new BasicSpike(6, 0, false)
 		}, 9);
 	}
 	public static Structure makeDontJump() {
 		ArrayList<Tile> tiles = new ArrayList<Tile>();
 		int padStart = 2 + random.nextInt(1);
-		int padEnd = 0 + random.nextInt(3);
+		int padEnd = 0 + random.nextInt(2);
 		int n = 1 + random.nextInt(3);
 		for (int i = 0; i < n; i++) {
-			tiles.add(new BasicBlock(padStart + i, 1));
-			tiles.add(new BasicSpike(padStart + i, 2));
+			tiles.add(new BasicBlock(padStart + i, 1, false));
+			tiles.add(new BasicSpike(padStart + i, 2, false));
 		}
 		return new Structure(tiles, padStart + n + padEnd);
 	}
 	public static Structure makeOrb() {
 		return new Structure(new Tile[] {
-			new JumpOrb(5 + Math.round(Math.random()), 1 + Math.round(Math.random())),
-			new BasicSpike(4, 0),
-			new BasicSpike(5, 0),
-			new BasicSpike(6, 0),
-			new BasicSpike(7, 0)
-		}, 9);
+			new JumpOrb(4 + Math.round(Math.random()), 1 + Math.round(Math.random())),
+			new BasicSpike(3, 0, false),
+			new BasicSpike(4, 0, false),
+			new BasicSpike(5, 0, false),
+			new BasicSpike(6, 0, false)
+		}, 8);
+	}
+	public static Structure makeDoubleOrb() {
+		ArrayList<Tile> tiles = new ArrayList<Tile>();
+		tiles.add(new JumpOrb(3 + Math.round(Math.random()), 1 + Math.round(Math.random())));
+		tiles.add(new BasicSpike(2, 0, false));
+		tiles.add(new BasicSpike(3, 0, false));
+		tiles.add(new BasicSpike(4, 0, false));
+		tiles.add(new BasicSpike(5, 0, false));
+		tiles.add(new JumpOrb(7 + Math.round(Math.random()), 1 + Math.round(Math.random())));
+		tiles.add(new BasicSpike(6, 0, false));
+		tiles.add(new BasicSpike(7, 0, false));
+		tiles.add(new BasicSpike(8, 0, false));
+		tiles.add(new BasicSpike(9, 0, false));
+		tiles.add(new BasicSpike(10, 0, false));
+		if (Math.random() < 0.5) tiles.add(new BasicSpike(11, 0, false));
+		return new Structure(tiles, 13);
+	}
+	public static Structure makeFakeOrb() {
+		return new Structure(new Tile[] {
+			new JumpOrb(4 + Math.round(Math.random()), 1 + Math.round(Math.random())),
+			new BasicBlock(3, 4, false),
+			new BasicBlock(4, 4, false),
+			new BasicBlock(5, 4, false),
+			new BasicBlock(6, 4, false),
+			new BasicSpike(3, 3, true),
+			new BasicSpike(4, 3, true),
+			new BasicSpike(5, 3, true),
+			new BasicSpike(6, 3, true)
+		}, 8);
 	}
 	public static Structure makeOrbTower() {
 		return new Structure(new Tile[] {
 			new JumpOrb(4, 1),
-			new BasicBlock(7, 0),
-			new BasicBlock(7, 1),
-			new BasicBlock(7, 2)
+			new BasicBlock(7, 0, false),
+			new BasicBlock(7, 1, false),
+			new BasicBlock(7, 2, false)
 		}, 10);
 	}
 	public static Structure makeTowerOrb() {
 		return new Structure(new Tile[] {
 			new JumpOrb(9, 1),
-			new BasicBlock(4, 0),
-			new BasicBlock(4, 1),
-			new BasicSpike(5, 0),
-			new BasicSpike(6, 0),
-			new BasicSpike(7, 0),
-			new BasicSpike(8, 0),
-			new BasicSpike(9, 0),
-			new BasicSpike(10, 0),
-			new BasicSpike(11, 0)
+			new BasicBlock(4, 0, false),
+			new BasicBlock(4, 1, false),
+			new BasicSpike(5, 0, false),
+			new BasicSpike(6, 0, false),
+			new BasicSpike(7, 0, false),
+			new BasicSpike(8, 0, false),
+			new BasicSpike(9, 0, false),
+			new BasicSpike(10, 0, false),
+			new BasicSpike(11, 0, false)
 		}, 13);
 	}
 	public static Structure makeLongUpsideDownSection() {
 		ArrayList<Tile> tiles = new ArrayList<Tile>();
 		// Prompt the player to jump
-		tiles.add(new BasicSpike(4, 0));
+		tiles.add(new BasicSpike(4, 0, false));
 		// Switch gravity
 		if (random.nextBoolean()) {
 			tiles.add(new ReverseGravityPortal(4, 2));
 		} else {
 			tiles.add(new GravityOrb(5, 2));
-			tiles.add(new BasicSpike(5, 0));
-			tiles.add(new BasicSpike(6, 0));
-			tiles.add(new BasicSpike(7, 0));
+			tiles.add(new BasicSpike(5, 0, false));
+			tiles.add(new BasicSpike(6, 0, false));
+			tiles.add(new BasicSpike(7, 0, false));
 		}
 		// Generate inner structures
 		int width = 5;
@@ -220,13 +255,13 @@ public class LevelGeneration {
 		}
 		// Generate floor
 		for (int i = 0; i < width + 3; i++) {
-			tiles.add(new BasicBlock(5 + i, 5));
+			tiles.add(new BasicBlock(5 + i, 5, true));
 		}
 		// Prompt the player to jump
-		tiles.add(new BasicSpike(4 + width, 4));
-		tiles.add(new BasicSpike(5 + width, 4));
-		tiles.add(new BasicSpike(6 + width, 4));
-		tiles.add(new BasicSpike(7 + width, 4));
+		tiles.add(new BasicSpike(4 + width, 4, true));
+		tiles.add(new BasicSpike(5 + width, 4, true));
+		tiles.add(new BasicSpike(6 + width, 4, true));
+		tiles.add(new BasicSpike(7 + width, 4, true));
 		// Switch gravity back
 		if (random.nextBoolean()) {
 			tiles.add(new NormalGravityPortal(5 + width, 2));
@@ -237,26 +272,26 @@ public class LevelGeneration {
 	}
 	public static Structure makeSunkenSpikes() {
 		return new Structure(new Tile[] {
-			new BasicBlock(4, 0),
-			new BasicBlock(4, 1),
-			new BasicSpike(5, 0),
-			new BasicSpike(6, 0),
-			new BasicSpike(7, 0),
-			new BasicSpike(8, 0),
-			new BasicBlock(9, 0),
-			new BasicBlock(9, 1)
+			new BasicBlock(4, 0, false),
+			new BasicBlock(4, 1, false),
+			new BasicSpike(5, 0, false),
+			new BasicSpike(6, 0, false),
+			new BasicSpike(7, 0, false),
+			new BasicSpike(8, 0, false),
+			new BasicBlock(9, 0, false),
+			new BasicBlock(9, 1, false)
 		}, 13);
 	}
 	public static Structure makeLessSunkenSpikes() {
 		return new Structure(new Tile[] {
-			new BasicBlock(4, 0),
-			new BasicBlock(5, 0),
-			new BasicSpike(6, 0),
-			new BasicSpike(7, 0),
-			new BasicSpike(8, 0),
-			new BasicSpike(9, 0),
-			new BasicBlock(10, 0),
-			new BasicBlock(11, 0)
-		}, 15);
+			new BasicBlock(3, 0, false),
+			new BasicBlock(4, 0, false),
+			new BasicSpike(5, 0, false),
+			new BasicSpike(6, 0, false),
+			new BasicSpike(7, 0, false),
+			new BasicSpike(8, 0, false),
+			new BasicBlock(9, 0, false),
+			new BasicBlock(10, 0, false)
+		}, 12);
 	}
 }

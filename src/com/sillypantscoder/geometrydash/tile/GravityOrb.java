@@ -12,7 +12,7 @@ public class GravityOrb extends Orb {
 	}
 	public void activate(Player player) {
 		player.gravity *= -1;
-		player.vy = player.gravity * -0.5;
+		player.vy = player.gravity * -0.33;
 		player.view.agentScore += 4;
 	}
 	public int[][] drawForNetwork() {

@@ -8,9 +8,9 @@ import java.util.Optional;
 import java.util.Random;
 
 public class GeneticAlgorithm {
-	public static final int N_MODIFICATIONS_PER_ALTER = 4;
-	public static final int N_SPLITS_PER_NETWORK = 50;
-	public static final int N_BEST_NETWORKS = 4;
+	public static final int N_MODIFICATIONS_PER_ALTER = 1;
+	public static final int N_SPLITS_PER_NETWORK = 30;
+	public static final int N_BEST_NETWORKS = 10;
 	public static void main(String[] args) {
 		// Make a network
 		Network network = createNetwork();
@@ -28,7 +28,7 @@ public class GeneticAlgorithm {
 	}
 	public static Network createNetwork() {
 		// Create a compatible network.
-		return Network.createZeroLayer(5 * 8 * 4 * 4 * 5); // 5: Height  8: Width  4: Block height  4: Block width  5: Pixel depth
+		return Network.createZeroLayer(6 * 8 * 4 * 4 * 5); // 5: Height  8: Width  4: Block height  4: Block width  5: Pixel depth
 	}
 	public static Network alterNetwork(Network input) {
 		Network currentNetwork = input.copy();

@@ -9,6 +9,7 @@ import com.sillypantscoder.gdgenetic.NetworkEvaluator.Snapshot;
 public class View {
 	public ArrayList<Tile> tiles;
 	public Player player;
+	public boolean wasPressingLastFrame = false;
 	public boolean isPressing = false;
 	public boolean hasStartedPressing = false;
 	public boolean hasDied = false;
@@ -54,9 +55,11 @@ public class View {
 		}
 		// Score
 		agentScore += NetworkEvaluator.POINTS_PER_FRAME;
-		if (isPressing) agentScore += NetworkEvaluator.JUMP_PENALTY;
-		if (isPressing && !player.mode.jumpingHasEffect()) agentScore += NetworkEvaluator.POINTLESS_JUMP_PENALTY;
+		if (isPressing && !this.wasPressingLastFrame) agentScore += NetworkEvaluator.JUMP_PENALTY;
+		if (isPressing && (!this.player.mode.jumpingHasEffect()) && !this.wasPressingLastFrame) agentScore += NetworkEvaluator.POINTLESS_JUMP_PENALTY;
+		if (isPressing) agentScore += NetworkEvaluator.JUMP_TICK_PENALTY;
 		if (isPressing && player.specialJump.isPresent()) agentScore += NetworkEvaluator.SPECIAL_JUMP_BONUS;
+		this.wasPressingLastFrame = this.isPressing;
 		// Add more
 		if (player.x > generationX - 5) {
 			LevelGeneration.appendRandomStructure(this);

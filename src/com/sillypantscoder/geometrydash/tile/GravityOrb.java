@@ -4,6 +4,7 @@ import java.awt.Color;
 
 import com.sillypantscoder.gdgenetic.Surface;
 import com.sillypantscoder.geometrydash.Player;
+import com.sillypantscoder.geometrydash.CubeMode;
 import com.sillypantscoder.geometrydash.IntRect;
 
 public class GravityOrb extends Orb {
@@ -12,7 +13,7 @@ public class GravityOrb extends Orb {
 	}
 	public void activate(Player player) {
 		player.gravity *= -1;
-		player.vy = player.gravity * -0.33;
+		player.vy = player.gravity * -CubeMode.JUMP_STRENGH * 0.75;
 		player.view.agentScore += 4;
 	}
 	public int[][] drawForNetwork() {

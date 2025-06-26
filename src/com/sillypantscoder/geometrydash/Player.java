@@ -26,7 +26,7 @@ public class Player extends SceneItem {
 		public DoubleRect topRect;
 		public DoubleRect bottomRect;
 		public PlayerBlockRects(Player player) {
-			double margin = 0.3;
+			double margin = 0.2;
 			DoubleRect general = player.getGeneralRect();
 			DoubleRect maxY = general.relative(0, 1 - margin, 1, margin);
 			DoubleRect minY = general.relative(0, 0, 1, margin);

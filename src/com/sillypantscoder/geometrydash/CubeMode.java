@@ -6,6 +6,7 @@ import com.sillypantscoder.gdgenetic.Surface;
 import com.sillypantscoder.geometrydash.tile.Tile;
 
 public class CubeMode extends GameMode {
+	public static final double JUMP_STRENGH = 0.35;
 	public CubeMode(Player player) {
 		super(player);
 	}
@@ -62,7 +63,7 @@ public class CubeMode extends GameMode {
 				this.player.specialJump.ifPresent(e -> e.run());
 				this.player.view.hasStartedPressing = false;
 			} else if (this.player.groundHeight.isPresent()) {
-				this.player.vy = 0.33 * this.player.gravity;
+				this.player.vy = JUMP_STRENGH * this.player.gravity;
 				this.player.view.hasStartedPressing = false;
 			}
 		}

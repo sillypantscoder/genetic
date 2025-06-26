@@ -9,7 +9,7 @@ public abstract class GameMode {
 	}
 	public abstract Surface getIcon();
 	public void gravity(double amount) {
-		this.player.vy -= 0.028 * this.player.gravity * amount;
+		this.player.vy -= 0.031 * this.player.gravity * amount;
 	}
 	public void checkJump(double _amount) {}
 	public DoubleRect getRect() {

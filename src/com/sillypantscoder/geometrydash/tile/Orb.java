@@ -26,7 +26,7 @@ public abstract class Orb extends Tile {
 		}
 	}
 	public DoubleRect getRect() {
-		double padding = 0.3;
+		double padding = -0.1;
 		return new DoubleRect(this.x - padding, this.y - padding, 1 + padding + padding, 1 + padding + padding);
 	}
 	public abstract void activate(Player player);

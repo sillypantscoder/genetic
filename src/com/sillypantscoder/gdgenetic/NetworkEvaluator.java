@@ -15,10 +15,11 @@ import com.sillypantscoder.geometrydash.tile.Tile;
 
 public class NetworkEvaluator {
 	public static final int POINTS_PER_FRAME = 1;
-	public static final int JUMP_PENALTY = -4;
-	public static final int POINTLESS_JUMP_PENALTY = -4;
+	public static final int JUMP_PENALTY = -6;
+	public static final int POINTLESS_JUMP_PENALTY = -20;
+	public static final int JUMP_TICK_PENALTY = -1;
 	public static final int SPECIAL_JUMP_BONUS = 1;
-	public static final int VIDEO_MIN_OUTPUT_SCORE = 200;
+	public static final int VIDEO_MIN_OUTPUT_SCORE = 240;
 	public static final boolean RENDER_HITBOXES = false;
 	public static void main(String[] args) {
 		// Level Generation
@@ -113,10 +114,11 @@ public class NetworkEvaluator {
 				|         |
 				|  +++++  | (+ = visible block)
 				|  +++++  |
-				|  X++++  | (X = player)
-				|  +++++  |
+				|  +++++  | (X = player)
+				|  X++++  |
 				|  +++++  | Camera position is lower left of the + square.
-				|         | Coordinate origin is at lower left.
+				|  +++++  | Coordinate origin is at lower left.
+				|         |
 				\---------/
 		 */
 		public static double getCameraX(double playerx) {
@@ -132,10 +134,10 @@ public class NetworkEvaluator {
 			ArrayList<Double> inputs = new ArrayList<Double>();
 			double cameraX = getCameraX(s.playerX);
 			double cameraY = getCameraY(s.playerY);
-			for (int y = 0; y < 5 * 4; y++) {
+			for (int y = 0; y < 6 * 4; y++) {
 				for (int x = 0; x < 8 * 4; x++) {
 					int readY = y;
-					if (s.playerGravity < 0) readY = ((5 * 4) - y) - 1;
+					if (s.playerGravity < 0) readY = ((6 * 4) - y) - 5;
 					ArrayList<Double> pixel = get1HPixel(view, (x / 4.0) + cameraX, (readY / 4.0) + cameraY);
 					inputs.addAll(pixel);
 				}
@@ -143,13 +145,13 @@ public class NetworkEvaluator {
 			return inputs;
 		}
 		public static Surface renderNetworkInputs(View v, Snapshot s) {
-			Surface surface = new Surface(8 * 4, 5 * 4, Color.BLACK);
+			Surface surface = new Surface(8 * 4, 6 * 4, Color.BLACK);
 			double cameraX = getCameraX(s.playerX);
 			double cameraY = getCameraY(s.playerY);
-			for (int y = 0; y < 5 * 4; y++) {
+			for (int y = 0; y < 6 * 4; y++) {
 				for (int x = 0; x < 8 * 4; x++) {
 					int readY = y;
-					if (s.playerGravity < 0) readY = ((5 * 4) - y) - 1;
+					if (s.playerGravity < 0) readY = ((6 * 4) - y) - 5;
 					double pixel = getPixel(v, (x / 4.0) + cameraX, (readY / 4.0) + cameraY);
 					if (pixel == 1) surface.set_at(x, y, Color.BLUE);
 					if (pixel == 2) surface.set_at(x, y, Color.RED);
@@ -160,11 +162,11 @@ public class NetworkEvaluator {
 			final int scale = 6;
 			Surface big = surface.scale_size(scale).flipVertically();
 			for (int x = 0; x < 8 * 4; x++) {
-				for (int y = 0; y < 5 * 4; y++) {
+				for (int y = 0; y < 6 * 4; y++) {
 					big.drawRect(new Color(128, 128, 128), x * scale, y * scale, scale, scale, 1);
 				}
 			}
-			big.drawRect(new Color(0, 255, 64), 0, 8 * scale, 4 * scale, 4 * scale, 1);
+			big.drawRect(new Color(0, 255, 64), 0, 12 * scale, 4 * scale, 4 * scale, 1);
 			return big;
 		}
 	}
@@ -174,12 +176,14 @@ public class NetworkEvaluator {
 			runSimulation(network, 0);
 		}
 		@SuppressWarnings("unused")
-		public static Surface renderScene(View view, List<Snapshot> record) {
+		public static Surface renderScene(View view, List<Snapshot> record) { // Render a single frame (the most recent snapshot at this point in time).
+			// (Needs all previous snapshots for path / clicks)
 			// 1. Setup
 			Function<Double, Integer> cx = x -> (int)(Math.ceil(          (x + 2)           * Tile.RENDER_TILE_SIZE));
 			Function<Double, Integer> cn = n -> (int)(Math.ceil(             n              * Tile.RENDER_TILE_SIZE));
 			Function<Double, Integer> cy = y -> (int)(Math.ceil((view.getStageHeight() - y) * Tile.RENDER_TILE_SIZE));
 			Surface surface = new Surface(cx.apply(view.getStageWidth()), cy.apply(0.0) + 1, new Color(0, 125, 255));
+			view.player.x = record.get(record.size() - 1).playerX; // for animated tiles
 			// 2. Draw the tiles
 			for (int i = 0; i < view.tiles.size(); i++) {
 				Tile t = view.tiles.get(i);
@@ -322,8 +326,8 @@ public class NetworkEvaluator {
 			// Run the simulation
 			while (true) {
 				boolean decision = getNetworkDecision(view, network);
-				if (decision && !view.isPressing) {
-					view.startPressing();
+				if (decision) {
+					if (!view.isPressing) view.startPressing();
 				} else {
 					view.stopPressing();
 				}
@@ -347,10 +351,10 @@ public class NetworkEvaluator {
 	public static boolean getNetworkDecision(View view, Network network) {
 		double probability = network.evaluate(Rendering.getNetworkInputs(view)).get(0);
 		// probability is on a scale from -1 to 1
-		return Math.random() < probability;
+		return probability > 0;
 	}
 	public static double evaluateNetwork(Network network, int filename) {
-		int n_trials = 100;
+		int n_trials = 50;
 		int totalScore = 0;
 		for (int i = 0; i < n_trials; i++) {
 			totalScore += VideoMaker.runSimulation(network, filename);

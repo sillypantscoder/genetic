@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ThreadedNetworkEvaluator {
-	public static final int maxThreads = 14;
+	public static final int maxThreads = 8;
 	private ArrayList<Network> networks;
 	private ArrayList<Thread> threads;
 	public HashMap<Network, Double> results;

@@ -210,6 +210,8 @@ public class LevelGeneration {
 	public static Structure makeOrbTower() {
 		return new Structure(new Tile[] {
 			new JumpOrb(4, 1),
+			new Coin(6, 0).withValue(-30),
+			new Coin(6, 2).withValue(-20),
 			new BasicBlock(7, 0, false),
 			new BasicBlock(7, 1, false),
 			new BasicBlock(7, 2, false),
@@ -246,6 +248,7 @@ public class LevelGeneration {
 			tiles.add(new BasicSpike(7, 0, false));
 			tiles.add(new BasicSpike(8, 0, false));
 		}
+		tiles.add(new Coin(6, floorY - 1).withValue(5));
 		// Generate inner structures
 		int width = 5;
 		int numInner = 1 + random.nextInt(4);

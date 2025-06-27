@@ -13,6 +13,10 @@ public class Coin extends Tile {
 	public Coin(double x, double y) {
 		super(x, y);
 	}
+	public Coin withValue(int value) {
+		this.value = value;
+		return this;
+	}
 	public void collide(Player player) {
 		if (this.activated) return;
 		DoubleRect playerRect = player.getGeneralRect();

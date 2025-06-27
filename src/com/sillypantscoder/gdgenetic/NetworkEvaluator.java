@@ -18,7 +18,7 @@ public class NetworkEvaluator {
 	public static final int JUMP_PENALTY = -6;
 	public static final int POINTLESS_JUMP_PENALTY = -20;
 	public static final int JUMP_TICK_PENALTY = -1;
-	public static final int SPECIAL_JUMP_BONUS = 1;
+	public static final int SPECIAL_JUMP_BONUS = 12;
 	public static final int VIDEO_MIN_OUTPUT_SCORE = 240;
 	public static final boolean RENDER_HITBOXES = false;
 	public static void main(String[] args) {

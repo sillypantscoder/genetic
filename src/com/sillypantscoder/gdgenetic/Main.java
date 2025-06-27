@@ -63,13 +63,14 @@ public class Main {
 			}
 			// Find which network is best
 			for (Network n : networkList) {
-				String filename = "outputs/network" + (i + 1);
-				while (new File(filename + ".txt").exists()) filename += "_";
+				String filename = "outputs/network" + (i + 1) + "_";
+				int fi = 1;
+				while (new File(filename + fi + ".txt").exists()) fi += 1;
 				try {
-					BufferedWriter writer = new BufferedWriter(new FileWriter(filename + ".txt"));
+					BufferedWriter writer = new BufferedWriter(new FileWriter(filename + fi + ".txt"));
 					writer.write(n.save());
 					writer.close();
-					System.out.println("\t[AI saved to file: " + filename + ".txt]");
+					System.out.println("\t[AI saved to file: " + filename + fi + ".txt]");
 				} catch (IOException e) {
 					System.out.println("WARNING!!! AI FAILED TO SAVE:");
 					e.printStackTrace();

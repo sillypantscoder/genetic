@@ -17,14 +17,14 @@ public class GeneticAlgorithm {
 		// Put it in a set by itself
 		ArrayList<Network> startingNetworks = new ArrayList<Network>();
 		startingNetworks.add(network);
-		System.out.println("Original score: " + NetworkEvaluator.evaluateNetworksWithoutPrintingData(startingNetworks, 0));
+		System.out.println("Original score: " + NetworkEvaluator.evaluateNetworksWithoutPrintingData(startingNetworks));
 		// And test it!
-		ArrayList<Network> betterNetworks = runOneIteration(startingNetworks, 0);
+		ArrayList<Network> betterNetworks = runOneIteration(startingNetworks);
 		// See if our better networks do better than our original
-		System.out.println("Better score: " + NetworkEvaluator.evaluateNetworksWithoutPrintingData(betterNetworks, 0));
+		System.out.println("Better score: " + NetworkEvaluator.evaluateNetworksWithoutPrintingData(betterNetworks));
 		// Run another iteration!
-		ArrayList<Network> evenBetterNetworks = runOneIteration(betterNetworks, 0);
-		System.out.println("Even better score: " + NetworkEvaluator.evaluateNetworksWithoutPrintingData(evenBetterNetworks, 0));
+		ArrayList<Network> evenBetterNetworks = runOneIteration(betterNetworks);
+		System.out.println("Even better score: " + NetworkEvaluator.evaluateNetworksWithoutPrintingData(evenBetterNetworks));
 	}
 	public static Network createNetwork() {
 		// Create a compatible network.
@@ -85,8 +85,8 @@ public class GeneticAlgorithm {
 		}
 		return results;
 	}
-	public static ArrayList<Network> purgeNetworkList(ArrayList<Network> networks, int amtNetworksToKeep, int filename) {
-		ThreadedNetworkEvaluator evaluator = new ThreadedNetworkEvaluator(networks, filename);
+	public static ArrayList<Network> purgeNetworkList(ArrayList<Network> networks, int amtNetworksToKeep) {
+		ThreadedNetworkEvaluator evaluator = new ThreadedNetworkEvaluator(networks);
 		evaluator.executeThreads(true);
 		HashMap<Network, Double> scores = evaluator.results;
 		ArrayList<Network> sorted = new ArrayList<Network>(networks);
@@ -106,14 +106,18 @@ public class GeneticAlgorithm {
 			return new ArrayList<Network>(sorted);
 		}
 	}
-	public static ArrayList<Network> runOneIteration(ArrayList<Network> networks, int filename) {
+	public static ArrayList<Network> runOneIteration(ArrayList<Network> networks) {
 		System.out.print("\t[" + networks.size());
 		// 1. Randomly alter all the networks
 		ArrayList<Network> splitList = splitNetworkList(networks);
 		System.out.println(" -> " + splitList.size() + "...");
 		// 2. Evaluate the networks
-		ArrayList<Network> goodNetworks = purgeNetworkList(splitList, N_BEST_NETWORKS, filename);
+		ArrayList<Network> goodNetworks = purgeNetworkList(splitList, N_BEST_NETWORKS);
 		System.out.println("\n\t... -> " + goodNetworks.size() + "]");
+		// 3. Mark networks as having survived an iteration
+		double avgGen = 0;
+		for (Network n : goodNetworks) avgGen += n.generations; // TODO: Square????
+		for (Network n : goodNetworks) n.generations = (int)(Math.floor(avgGen / goodNetworks.size()) + 1);
 		return goodNetworks;
 	}
 }

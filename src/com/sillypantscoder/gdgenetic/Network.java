@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 public class Network {
+	public int generations = 0;
 	public ArrayList<InputNode> inputs;
 	public ArrayList<NetworkNode> outputs;
 	public Network(ArrayList<InputNode> inputs, ArrayList<NetworkNode> outputs) {
@@ -35,6 +36,7 @@ public class Network {
 	}
 	public String save() {
 		ArrayList<String> results = new ArrayList<String>();
+		results.add("" + this.generations);
 		// A list of all the node IDs. These will be used to ensure there are no duplicate nodes.
 		HashMap<NetworkNode, Integer> ids = new HashMap<NetworkNode, Integer>();
 		// Get a list of all the nodes
@@ -75,12 +77,14 @@ public class Network {
 	}
 	public static Network load(String info) {
 		String[] cells = info.split("\n");
+		int generations = Integer.valueOf(cells[0]);
 		HashMap<Integer, NetworkNode> nodes = new HashMap<Integer, NetworkNode>();
 		ArrayList<InputNode> inputs = new ArrayList<InputNode>();
 		ArrayList<NetworkNode> outputs = new ArrayList<NetworkNode>();
 		// First get the nodes
 		// Connections must be done separately to ensure the node references are correct
 		for (String savedNode : cells) {
+			if (savedNode == cells[0]) continue;
 			// First get the ID
 			int nodeID = Integer.parseInt(savedNode.split("\\|")[0].substring(1));
 			// First character is node type
@@ -100,6 +104,7 @@ public class Network {
 		}
 		// Then add the connections
 		for (String savedNode : cells) {
+			if (savedNode == cells[0]) continue;
 			int nodeID = Integer.parseInt(savedNode.split("\\|")[0].substring(1));
 			NetworkNode _node = nodes.get(nodeID);
 			if (_node instanceof RegularNode node) {
@@ -114,7 +119,10 @@ public class Network {
 				}
 			}
 		}
-		return new Network(inputs, outputs);
+		// Finish
+		Network n = new Network(inputs, outputs);
+		n.generations = generations;
+		return n;
 	}
 	public Network copy() {
 		return Network.load(save());

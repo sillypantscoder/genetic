@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Random;
 import java.util.function.Supplier;
 
+import com.sillypantscoder.gdgenetic.NetworkEvaluator.Snapshot;
 import com.sillypantscoder.geometrydash.View;
 import com.sillypantscoder.geometrydash.tile.BasicBlock;
 import com.sillypantscoder.geometrydash.tile.BasicSpike;
@@ -69,15 +70,13 @@ public class LevelGeneration {
 		structures.add(LevelGeneration::makeLongBlocks);
 		structures.add(LevelGeneration::makeLongBlocks);
 		structures.add(LevelGeneration::makeLongBlocks);
+		structures.add(LevelGeneration::makeLongBlocks);
 		structures.add(LevelGeneration::makeCLGJump);
 		if (Math.random() < 0.5) structures.add(LevelGeneration::makeDontJump);
 		structures.add(LevelGeneration::makeOrb);
 		structures.add(LevelGeneration::makeOrb);
 		structures.add(LevelGeneration::makeDoubleOrb);
 		structures.add(LevelGeneration::makeDoubleOrb);
-		structures.add(LevelGeneration::makeOrbTower);
-		structures.add(LevelGeneration::makeOrbTower);
-		structures.add(LevelGeneration::makeOrbTower);
 		structures.add(LevelGeneration::makeOrbTower);
 		structures.add(LevelGeneration::makeOrbTower);
 		structures.add(LevelGeneration::makeOrbTower);
@@ -135,7 +134,6 @@ public class LevelGeneration {
 			new BasicSpike(9, 0, false),
 			new BasicBlock(10, 0, false),
 			new BasicBlock(10, 1, false),
-			new Coin(10, 2),
 			new BasicSpike(11, 0, false),
 			new BasicSpike(12, 0, false),
 			new BasicSpike(13, 0, false),
@@ -179,7 +177,7 @@ public class LevelGeneration {
 			tiles.add(new BasicBlock(padStart + i, 1, false));
 			tiles.add(new BasicSpike(padStart + i, 2, false));
 		}
-		tiles.add(new Coin(padStart + 1, 0));
+		tiles.add(new Coin(padStart - 1, 2).withValue(-25));
 		return new Structure(tiles, padStart + n + padEnd);
 	}
 	public static Structure makeOrb() {
@@ -209,14 +207,12 @@ public class LevelGeneration {
 	}
 	public static Structure makeOrbTower() {
 		return new Structure(new Tile[] {
-			new JumpOrb(4, 1),
-			new Coin(6, 0).withValue(-30),
-			new Coin(6, 2).withValue(-20),
-			new BasicBlock(7, 0, false),
-			new BasicBlock(7, 1, false),
-			new BasicBlock(7, 2, false),
-			new Coin(7, 3)
-		}, 10);
+			new JumpOrb(3 + Math.round(Math.random()), 1 + Math.round(Math.random())),
+			new Coin(5, 0).withValue(-30),
+			new BasicBlock(6, 0, false),
+			new BasicBlock(6, 1, false),
+			new BasicBlock(6, 2, false)
+		}, 9);
 	}
 	public static Structure makeTowerOrb() {
 		return new Structure(new Tile[] {
@@ -302,5 +298,43 @@ public class LevelGeneration {
 			new BasicBlock(9, 0, false),
 			new BasicBlock(10, 0, false)
 		}, 12);
+	}
+	// stereo madness because I want to
+	public static class StereoMadness {
+		public static void main(String[] args) {
+			View v = generateLevel();
+			ArrayList<Snapshot> snapshots = new ArrayList<Snapshot>();
+			snapshots.add(v.capture());
+			// render
+			Surface rendered = NetworkEvaluator.VideoMaker.renderScene(v, snapshots);
+			rendered.save("sm");
+		}
+		public static View generateLevel() {
+			View v = new View();
+			v.tiles.add(new BasicSpike(10, 0, false));
+			v.tiles.add(new BasicSpike(20, 0, false));
+			v.tiles.add(new BasicSpike(21, 0, false));
+			// SM Set
+			v.tiles.add(new BasicSpike(31, 0, false));
+			v.tiles.add(new BasicSpike(32, 0, false));
+			v.tiles.add(new BasicBlock(33, 0, false));
+			v.tiles.add(new BasicSpike(34, 0, false));
+			v.tiles.add(new BasicSpike(35, 0, false));
+			v.tiles.add(new BasicSpike(36, 0, false));
+			v.tiles.add(new BasicBlock(37, 0, false));
+			v.tiles.add(new BasicBlock(37, 1, false));
+			v.tiles.add(new BasicSpike(38, 0, false));
+			v.tiles.add(new BasicSpike(39, 0, false));
+			v.tiles.add(new BasicSpike(40, 0, false));
+			v.tiles.add(new BasicBlock(41, 0, false));
+			v.tiles.add(new BasicBlock(41, 1, false));
+			v.tiles.add(new BasicBlock(41, 2, false));
+			// long blocks
+			v.tiles.add(new BasicSpike(55, 0, false));
+			// finish
+			v.generationX = 5;
+			v.ownTiles();
+			return v;
+		}
 	}
 }

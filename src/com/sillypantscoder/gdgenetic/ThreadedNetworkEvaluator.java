@@ -5,19 +5,17 @@ import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ThreadedNetworkEvaluator {
-	public static final int maxThreads = 14;
+	public static int maxThreads = 14;
 	private ArrayList<Network> networks;
 	private ArrayList<Thread> threads;
 	public HashMap<Network, Double> results;
 	public AtomicInteger threadCount;
-	public int filename;
-	public ThreadedNetworkEvaluator(ArrayList<Network> networks, int filename) {
+	public ThreadedNetworkEvaluator(ArrayList<Network> networks) {
 		this.networks = networks;
 		this.threads = new ArrayList<Thread>();
 		this.results = new HashMap<Network, Double>();
 		this.createThreads();
 		this.threadCount = new AtomicInteger(0);
-		this.filename = filename;
 	}
 	public void createThreads() {
 		for (int i = 0; i < this.networks.size(); i++) {
@@ -27,7 +25,7 @@ public class ThreadedNetworkEvaluator {
 	}
 	public Thread createThread(int i) {
 		return new Thread(() -> {
-			double result = NetworkEvaluator.evaluateNetwork(networks.get(i), filename);
+			double result = NetworkEvaluator.evaluateNetwork(networks.get(i));
 			results.put(networks.get(i), result);
 			threadCount.decrementAndGet();
 		}, "network-evaluator-" + i);

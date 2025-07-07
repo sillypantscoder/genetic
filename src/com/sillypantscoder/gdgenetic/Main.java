@@ -34,7 +34,7 @@ public class Main {
 			}
 		}
 		// Initial score
-		double initialScore = NetworkEvaluator.evaluateNetworksWithoutPrintingData(networkList, 0)[0];
+		double initialScore = NetworkEvaluator.evaluateNetworksWithoutPrintingData(networkList)[0];
 		System.out.println("Initial score is: " + initialScore);
 		bar(initialScore);
 		// Run a bunch of iterations
@@ -43,7 +43,7 @@ public class Main {
 		for (int i = 0; i <= totalIterations; i++) {
 			// Find average score for this iteration
 			System.out.println("Iterations done: " + i + "/" + totalIterations + " (" + neat(((double)(i)/totalIterations)*100.0) + "%) - Starting iteration " + (i + 1));
-			double[] scores = NetworkEvaluator.evaluateNetworksWithoutPrintingData(networkList, i + 1);
+			double[] scores = NetworkEvaluator.evaluateNetworksWithoutPrintingData(networkList);
 			double score = scores[0];
 			int stagewidth = (int)(LevelGeneration.generateLevel().getStageWidth() / 0.2);
 			System.out.print("\tAverage score is: " + neat(score) + "/" + stagewidth);
@@ -56,14 +56,14 @@ public class Main {
 			// Run the iteration
 			if (i == totalIterations) continue;
 			try {
-				networkList = GeneticAlgorithm.runOneIteration(networkList, i + 1);
+				networkList = GeneticAlgorithm.runOneIteration(networkList);
 			} catch (Exception e) {
 				Utils.log("ERROR!!!!! Iteration " + (i + 1) + " failed!");
 				Utils.logError(e);
 			}
 			// Find which network is best
 			for (Network n : networkList) {
-				String filename = "outputs/network" + (i + 1) + "_";
+				String filename = "outputs/network" + n.generations + "_";
 				int fi = 1;
 				while (new File(filename + fi + ".txt").exists()) fi += 1;
 				try {
@@ -84,7 +84,7 @@ public class Main {
 	}
 	public static void bar(double v) {
 		// ascii art :D
-		double spaces = (v - 40) * 1;
+		double spaces = (v - 30) * 0.5;
 		try {
 			System.out.println("\t|" + "-".repeat((int)(Math.round(spaces))) + "#");
 		} catch (IllegalArgumentException e) {

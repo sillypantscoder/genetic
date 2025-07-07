@@ -18,8 +18,8 @@ public class NetworkEvaluator {
 	public static final int JUMP_PENALTY = -6;
 	public static final int POINTLESS_JUMP_PENALTY = -20;
 	public static final int JUMP_TICK_PENALTY = -1;
-	public static final int SPECIAL_JUMP_BONUS = 12;
-	public static final int VIDEO_MIN_OUTPUT_SCORE = 240;
+	public static final int SPECIAL_JUMP_BONUS = 17;
+	public static final int VIDEO_MIN_OUTPUT_SCORE = 280;
 	public static final boolean RENDER_HITBOXES = false;
 	public static void main(String[] args) {
 		// Level Generation
@@ -55,7 +55,7 @@ public class NetworkEvaluator {
 		System.out.println("camera: (" + Rendering.getCameraX(v.player.x) + ", " + Rendering.getCameraY(v.player.y) + ")");
 		// Simulation
 		Network network = Network.createZeroLayer(5 * 5 * 3);
-		double score = evaluateNetwork(network, 0);
+		double score = evaluateNetwork(network);
 		System.out.println(score);
 	}
 	public static class Snapshot {
@@ -173,7 +173,7 @@ public class NetworkEvaluator {
 	public static class VideoMaker {
 		public static void main(String[] args) {
 			Network network = GeneticAlgorithm.createNetwork();
-			runSimulation(network, 0);
+			runSimulation(network);
 		}
 		@SuppressWarnings("unused")
 		public static Surface renderScene(View view, List<Snapshot> record) { // Render a single frame (the most recent snapshot at this point in time).
@@ -282,14 +282,14 @@ public class NetworkEvaluator {
 				renderDecisions(network, view, record, i)
 			}, Color.BLACK);
 		}
-		public static void saveVideo(Network network, View view, ArrayList<Snapshot> record, int filename) {
+		public static void saveVideo(Network network, View view, ArrayList<Snapshot> record) {
 			// Make the images
 			Surface[] list = new Surface[record.size()];
 			for (int i = 0; i < record.size(); i++) {
 				list[i] = renderFrame(network, view, record, i);
 			}
 			// Save the images
-			String fn = "score" + view.agentScore + "_network" + filename + "_";
+			String fn = "score" + view.agentScore + "_network" + network.generations + "_";
 			if (new File("output_videogen/" + fn).exists()) {
 				int suffix = 2;
 				while (new File("output_videogen/" + fn + suffix).exists()) suffix += 1;
@@ -319,7 +319,7 @@ public class NetworkEvaluator {
 				e.printStackTrace();
 			}
 		}
-		public static int runSimulation(Network network, int filename) {
+		public static int runSimulation(Network network) {
 			View view = LevelGeneration.generateLevel();
 			// Simulation parameters
 			ArrayList<Snapshot> record = new ArrayList<Snapshot>();
@@ -342,7 +342,7 @@ public class NetworkEvaluator {
 			record.add(view.capture());
 			// Save the image
 			if (view.agentScore >= VIDEO_MIN_OUTPUT_SCORE) {
-				saveVideo(network, view, record, filename);
+				saveVideo(network, view, record);
 				// System.out.println("\t[Video saved to file: " + fn + "]");
 			}
 			return view.agentScore;
@@ -353,16 +353,16 @@ public class NetworkEvaluator {
 		// probability is on a scale from -1 to 1
 		return probability > 0;
 	}
-	public static double evaluateNetwork(Network network, int filename) {
+	public static double evaluateNetwork(Network network) {
 		int n_trials = 50;
 		int totalScore = 0;
 		for (int i = 0; i < n_trials; i++) {
-			totalScore += VideoMaker.runSimulation(network, filename);
+			totalScore += VideoMaker.runSimulation(network);
 		}
 		return (double)(totalScore) / n_trials;
 	}
-	public static double[] evaluateNetworksWithoutPrintingData(ArrayList<Network> networks, int filename) {
-		ThreadedNetworkEvaluator evaluator = new ThreadedNetworkEvaluator(networks, filename);
+	public static double[] evaluateNetworksWithoutPrintingData(ArrayList<Network> networks) {
+		ThreadedNetworkEvaluator evaluator = new ThreadedNetworkEvaluator(networks);
 		evaluator.executeThreads(false);
 		double totalScore = 0;
 		double maxScore = Double.MIN_VALUE;

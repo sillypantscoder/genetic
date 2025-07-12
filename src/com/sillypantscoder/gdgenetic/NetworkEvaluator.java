@@ -12,14 +12,15 @@ import com.sillypantscoder.geometrydash.DoubleRect;
 import com.sillypantscoder.geometrydash.IntRect;
 import com.sillypantscoder.geometrydash.View;
 import com.sillypantscoder.geometrydash.tile.Tile;
+import com.sillypantscoder.windowlib.Surface;
 
 public class NetworkEvaluator {
 	public static final int POINTS_PER_FRAME = 1;
 	public static final int JUMP_PENALTY = -6;
 	public static final int POINTLESS_JUMP_PENALTY = -20;
 	public static final int JUMP_TICK_PENALTY = -1;
-	public static final int SPECIAL_JUMP_BONUS = 17;
-	public static final int VIDEO_MIN_OUTPUT_SCORE = 280;
+	public static final int SPECIAL_JUMP_BONUS = 18;
+	public static final int VIDEO_MIN_OUTPUT_SCORE = 240;
 	public static final boolean RENDER_HITBOXES = false;
 	public static void main(String[] args) {
 		// Level Generation
@@ -318,6 +319,28 @@ public class NetworkEvaluator {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+		}
+		public static ArrayList<Snapshot> runSimulationWithSpecificLevel(Network network, View view) {
+			// Simulation parameters
+			ArrayList<Snapshot> record = new ArrayList<Snapshot>();
+			// Run the simulation
+			while (true) {
+				boolean decision = getNetworkDecision(view, network);
+				if (decision) {
+					if (!view.isPressing) view.startPressing();
+				} else {
+					view.stopPressing();
+				}
+				record.add(view.capture());
+				view.timeTick();
+				// Continue
+				if (view.hasDied) {
+					// The simulation is over
+					break;
+				}
+			}
+			record.add(view.capture());
+			return record;
 		}
 		public static int runSimulation(Network network) {
 			View view = LevelGeneration.generateLevel();

@@ -2,11 +2,14 @@ package com.sillypantscoder.geometrydash.tile;
 
 import java.awt.Color;
 
-import com.sillypantscoder.gdgenetic.Surface;
 import com.sillypantscoder.geometrydash.DoubleRect;
 import com.sillypantscoder.geometrydash.IntRect;
 import com.sillypantscoder.geometrydash.Player;
+import com.sillypantscoder.windowlib.Surface;
 
+/**
+ * Invisible incentive for the AI. Default value 15.
+ */
 public class Coin extends Tile {
 	public boolean activated;
 	public int value = 15;

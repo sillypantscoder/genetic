@@ -5,38 +5,45 @@ import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ThreadedNetworkEvaluator {
-	public static int maxThreads = 14;
-	private ArrayList<Network> networks;
-	private ArrayList<Thread> threads;
+	public static int maxThreads = 4;
+	public static ThreadedNetworkEvaluator lock = null;
+	public ArrayList<Network> networks;
+	public ArrayList<Thread> threads;
 	public HashMap<Network, Double> results;
 	public AtomicInteger threadCount;
 	public ThreadedNetworkEvaluator(ArrayList<Network> networks) {
 		this.networks = networks;
 		this.threads = new ArrayList<Thread>();
+		for (@SuppressWarnings("unused") Network __ : networks) this.threads.add(null);
 		this.results = new HashMap<Network, Double>();
-		this.createThreads();
 		this.threadCount = new AtomicInteger(0);
 	}
-	public void createThreads() {
-		for (int i = 0; i < this.networks.size(); i++) {
-			Thread thread = createThread(i);
-			threads.add(thread);
-		}
-	}
-	public Thread createThread(int i) {
-		return new Thread(() -> {
+	public Runnable getRunnable(int i) {
+		return () -> {
 			double result = NetworkEvaluator.evaluateNetwork(networks.get(i));
 			results.put(networks.get(i), result);
 			threadCount.decrementAndGet();
-		}, "network-evaluator-" + i);
+		};
 	}
 	public void executeThreads(boolean print) {
+		// Lock
+		while (lock != null) {
+			try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		lock = this;
+		// Start threads
 		int i = 0;
 		if (networks.size() < 20) print = false;
 		while (true) {
 			while (threadCount.get() < maxThreads) {
 				// start new threads
-				threads.get(i).start();
+				Thread thread = new Thread(getRunnable(i), "network-evaluator-" + i);
+				threads.set(i, thread);
+				thread.start();
 				i += 1;
 				threadCount.incrementAndGet();
 				if (i >= networks.size()) break;
@@ -64,6 +71,7 @@ public class ThreadedNetworkEvaluator {
 			e.printStackTrace();
 		}
 		if (print) printStatus(true);
+		lock = null;
 	}
 	public void printStatus(boolean isEnd) {
 		final int n_per_row = 110;

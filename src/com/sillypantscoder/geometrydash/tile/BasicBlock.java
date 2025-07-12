@@ -2,8 +2,8 @@ package com.sillypantscoder.geometrydash.tile;
 
 import java.awt.Color;
 
-import com.sillypantscoder.gdgenetic.Surface;
 import com.sillypantscoder.geometrydash.IntRect;
+import com.sillypantscoder.windowlib.Surface;
 
 public class BasicBlock extends TileBlock {
 	public BasicBlock(double x, double y, boolean flipped) {

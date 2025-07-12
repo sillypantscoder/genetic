@@ -19,11 +19,11 @@ public class GeneticAlgorithm {
 		startingNetworks.add(network);
 		System.out.println("Original score: " + NetworkEvaluator.evaluateNetworksWithoutPrintingData(startingNetworks));
 		// And test it!
-		ArrayList<Network> betterNetworks = runOneIteration(startingNetworks);
+		ArrayList<Network> betterNetworks = runOneIteration(startingNetworks, null);
 		// See if our better networks do better than our original
 		System.out.println("Better score: " + NetworkEvaluator.evaluateNetworksWithoutPrintingData(betterNetworks));
 		// Run another iteration!
-		ArrayList<Network> evenBetterNetworks = runOneIteration(betterNetworks);
+		ArrayList<Network> evenBetterNetworks = runOneIteration(betterNetworks, null);
 		System.out.println("Even better score: " + NetworkEvaluator.evaluateNetworksWithoutPrintingData(evenBetterNetworks));
 	}
 	public static Network createNetwork() {
@@ -85,9 +85,9 @@ public class GeneticAlgorithm {
 		}
 		return results;
 	}
-	public static ArrayList<Network> purgeNetworkList(ArrayList<Network> networks, int amtNetworksToKeep) {
+	public static ArrayList<Network> purgeNetworkList(ArrayList<Network> networks, int amtNetworksToKeep, boolean print) {
 		ThreadedNetworkEvaluator evaluator = new ThreadedNetworkEvaluator(networks);
-		evaluator.executeThreads(true);
+		evaluator.executeThreads(print);
 		HashMap<Network, Double> scores = evaluator.results;
 		ArrayList<Network> sorted = new ArrayList<Network>(networks);
 		sorted.sort(new Comparator<Network>() {
@@ -106,17 +106,19 @@ public class GeneticAlgorithm {
 			return new ArrayList<Network>(sorted);
 		}
 	}
-	public static ArrayList<Network> runOneIteration(ArrayList<Network> networks) {
+	public static ArrayList<Network> runOneIteration(ArrayList<Network> networks, InfoWindow window) {
 		System.out.print("\t[" + networks.size());
 		// 1. Randomly alter all the networks
+		if (window != null) window.status = "Splitting networks";
 		ArrayList<Network> splitList = splitNetworkList(networks);
 		System.out.println(" -> " + splitList.size() + "...");
 		// 2. Evaluate the networks
-		ArrayList<Network> goodNetworks = purgeNetworkList(splitList, N_BEST_NETWORKS);
+		if (window != null) window.status = "Evaluating networks";
+		ArrayList<Network> goodNetworks = purgeNetworkList(splitList, N_BEST_NETWORKS, window == null);
 		System.out.println("\n\t... -> " + goodNetworks.size() + "]");
 		// 3. Mark networks as having survived an iteration
 		double avgGen = 0;
-		for (Network n : goodNetworks) avgGen += n.generations; // TODO: Square????
+		for (Network n : goodNetworks) avgGen += n.generations;
 		for (Network n : goodNetworks) n.generations = (int)(Math.floor(avgGen / goodNetworks.size()) + 1);
 		return goodNetworks;
 	}

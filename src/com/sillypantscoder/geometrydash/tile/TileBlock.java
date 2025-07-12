@@ -35,6 +35,7 @@ public abstract class TileBlock extends FlippableTile {
 			// If the player is almost on top of this block, push them.
 			if (player.gravity > 0) {
 				player.groundHeight = Optional.of(thisRect.y + thisRect.h);
+				if (player.vy > 0) this.view.agentScore -= 30;
 			} else {
 				player.groundHeight = Optional.of(thisRect.y);
 			}

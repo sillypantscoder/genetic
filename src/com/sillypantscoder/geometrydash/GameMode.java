@@ -1,6 +1,6 @@
 package com.sillypantscoder.geometrydash;
 
-import com.sillypantscoder.gdgenetic.Surface;
+import com.sillypantscoder.windowlib.Surface;
 
 public abstract class GameMode {
 	protected Player player;

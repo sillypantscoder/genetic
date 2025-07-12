@@ -1,12 +1,12 @@
-package com.sillypantscoder.gdgenetic;
+package com.sillypantscoder.windowlib;
 
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
-import java.awt.image.ImageObserver;
+import java.awt.image.RescaleOp;
 import java.io.File;
 import java.io.IOException;
 
@@ -18,34 +18,30 @@ import java.awt.FontMetrics;
 
 public class Surface {
 	public BufferedImage img;
+	public Graphics2D g2d;
 	public Surface(int width, int height, Color color) {
 		img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		g2d = img.createGraphics();
 		this.fill(color);
 	}
 	public Surface(BufferedImage image) {
 		img = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g2d = img.createGraphics();
-		g2d.drawImage(image, 0, 0, new DummyImageObserver());
-		g2d.dispose();
+		g2d = img.createGraphics();
+		g2d.drawImage(image, 0, 0, null);
 	}
 	public void fill(Color color) {
-		Graphics2D graphics = img.createGraphics();
-		graphics.setPaint(color);
-		graphics.fillRect(0, 0, img.getWidth(), img.getHeight());
-		graphics.dispose();
+		g2d.setPaint(color);
+		g2d.fillRect(0, 0, img.getWidth(), img.getHeight());
 	}
 	public void blit(Surface other, int x, int y) {
-		Graphics2D g2d = img.createGraphics();
-		g2d.drawImage(other.img, x, y, new DummyImageObserver());
-		g2d.dispose();
+		g2d.drawImage(other.img, x, y, null);
 	}
 	public void blit(Surface other, int centerX, int centerY, double rotation) {
-		Graphics2D g2d = img.createGraphics();
 		g2d.translate(centerX, centerY);
 		g2d.rotate(Math.toRadians(rotation));
 		g2d.translate(-centerX, -centerY);
-		g2d.drawImage(other.img, centerX - other.get_width() / 2, centerY - other.get_height() / 2, new DummyImageObserver());
-		g2d.dispose();
+		g2d.drawImage(other.img, centerX - other.get_width() / 2, centerY - other.get_height() / 2, null);
+		g2d.dispose(); g2d = img.createGraphics();
 	}
 	public int get_width() {
 		return img.getWidth();
@@ -54,7 +50,7 @@ public class Surface {
 		return img.getHeight();
 	}
 	public Surface copy() {
-		Surface r = new Surface(get_width(), get_height(), Color.BLACK);
+		Surface r = new Surface(get_width(), get_height(), new Color(0, 0, 0, 0));
 		r.blit(this, 0, 0);
 		return r;
 	}
@@ -70,38 +66,27 @@ public class Surface {
 		return Color.BLACK;
 	}
 	public void drawLine(Color color, int x1, int y1, int x2, int y2, int thickness) {
-		Graphics2D g2d = img.createGraphics();
 		g2d.setColor(color);
-		BasicStroke bs = new BasicStroke(thickness);
-		g2d.setStroke(bs);
+		g2d.setStroke(new BasicStroke(thickness));
 		g2d.drawLine(x1, y1, x2, y2);
-		g2d.dispose();
 	}
 	public void drawRect(Color color, int x, int y, int width, int height) {
-		Graphics2D g2d = img.createGraphics();
 		g2d.setColor(color);
 		g2d.fillRect(x, y, width, height);
-		g2d.dispose();
 	}
 	public void drawRect(Color color, int x, int y, int width, int height, int lineWidth) {
-		Graphics2D g2d = img.createGraphics();
 		g2d.setColor(color);
 		g2d.setStroke(new BasicStroke(lineWidth));
 		g2d.drawRect(x, y, width, height);
-		g2d.dispose();
 	}
 	public void drawEllipse(Color color, int cx, int cy, int rx, int ry) {
-		Graphics2D g2d = img.createGraphics();
 		g2d.setColor(color);
 		g2d.fillOval(cx - rx, cy - ry, rx*2, ry*2);
-		g2d.dispose();
 	}
 	public void drawEllipse(Color color, int cx, int cy, int rx, int ry, int lineWidth) {
-		Graphics2D g2d = img.createGraphics();
 		g2d.setColor(color);
 		g2d.setStroke(new BasicStroke(lineWidth));
 		g2d.drawOval(cx - rx, cy - ry, rx*2, ry*2);
-		g2d.dispose();
 	}
 	public void drawCircle(Color color, int cx, int cy, int r) {
 		this.drawEllipse(color, cx, cy, r, r);
@@ -109,12 +94,61 @@ public class Surface {
 	public void drawCircle(Color color, int cx, int cy, int r, int lineWidth) {
 		this.drawEllipse(color, cx, cy, r, r, lineWidth);
 	}
+	public void drawCircle(Color color, double cx, double cy, double r) {
+		drawCircle(color, (int)(cx), (int)(cy), (int)(r));
+	}
+	public void drawCircle(Color color, double cx, double cy, double r, int lineWidth) {
+		drawCircle(color, (int)(cx), (int)(cy), (int)(r), lineWidth);
+	}
+	public void eraseCircle(int cx, int cy, int r) {
+		g2d.setColor(new Color(0, 0, 0, 0));
+		g2d.setComposite(AlphaComposite.Clear);
+		g2d.fillOval(cx - r, cy - r, r*2, r*2);
+	}
+	public void drawArc(Color color, double x, double y, double radius, double degStart, double degEnd) {
+		g2d.setColor(color);
+		g2d.fillArc((int)(x - radius), (int)(y - radius), (int)(radius*2), (int)(radius*2), 90 - (int)(degStart), -(int)(degEnd - degStart));
+	}
+	public void drawPolygon(Color color, int[][] points) {
+		g2d.setColor(color);
+		int[] xPoints = new int[points.length];
+		int[] yPoints = new int[points.length];
+		for (int i = 0; i < points.length; i++) {
+			xPoints[i] = points[i][0];
+			yPoints[i] = points[i][1];
+		}
+		g2d.fillPolygon(xPoints, yPoints, points.length);
+	}
+	public void drawPolygon(Color color, double[][] points, double centerX, double centerY, double scale) {
+		int[][] drawPoints = new int[points.length][2];
+		for (int i = 0; i < points.length; i++) {
+			drawPoints[i][0] = (int)((points[i][0] * scale) + centerX);
+			drawPoints[i][1] = (int)((points[i][1] * scale) + centerY);
+		}
+		this.drawPolygon(color, drawPoints);
+	}
+	public Surface scaleValues(float amount) {
+		RescaleOp op = new RescaleOp(new float[] { amount, amount, amount, amount }, new float[] { 0, 0, 0, 0 }, null);
+		BufferedImage newImg = op.filter(this.img, null);
+		return new Surface(newImg);
+	}
 	public Surface scale_size(int amount) {
 		int newWidth = this.img.getWidth() * amount;
 		int newHeight = this.img.getHeight() * amount;
+		return this.resize(newWidth, newHeight);
+	}
+	public Surface resize(int newWidth, int newHeight) {
 		BufferedImage newImg = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g2d = newImg.createGraphics();
+		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2d.drawImage(this.img, 0, 0, newWidth, newHeight, 0, 0, this.img.getWidth(), this.img.getHeight(), null);
+		g2d.dispose();
+		return new Surface(newImg);
+	}
+	public Surface crop(int x, int y, int w, int h) {
+		BufferedImage newImg = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g2d = newImg.createGraphics();
+		g2d.drawImage(this.img, 0, 0, w, h, x, y, x + w, y + h, null);
 		g2d.dispose();
 		return new Surface(newImg);
 	}
@@ -141,6 +175,7 @@ public class Surface {
 		}
 	}
 	public static Surface renderText(int size, String text, Color color) {
+		if (text.length() == 0) return new Surface(1, 1, new Color(0, 0, 0, 0));
 		// Measure the text
 		Font font = new Font("Monospaced", 0, size);
 		Surface measure = new Surface(1, 1, Color.BLACK);
@@ -152,6 +187,7 @@ public class Surface {
 		try {
 			Graphics2D g2d = ret.img.createGraphics();
 			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			g2d.setFont(font);
 			g2d.setColor(color);
 			g2d.drawString(text, 0, fm.getAscent());
 			g2d.dispose();
@@ -161,25 +197,48 @@ public class Surface {
 		// Finish
 		return ret;
 	}
+	public static Surface renderWrappedText(int size, String text, Color color, int maxWidth) {
+		// Get font
+		Font font = new Font("Monospaced", 0, size);
+		// Measure the text
+		Surface measure = new Surface(1, 1, Color.BLACK);
+		Graphics2D big = (Graphics2D)(measure.img.getGraphics());
+		big.setFont(font);
+		FontMetrics fm = big.getFontMetrics();
+		// Draw the text
+		ArrayList<Surface> surfaces = new ArrayList<Surface>();
+		String[] words = text.split(" ");
+		String line = "";
+		for (String word : words) {
+			if (fm.stringWidth(line + " " + word) > maxWidth) {
+				surfaces.add(renderText(size, line, color));
+				line = word;
+			} else {
+				if (line.length() == 0) {
+					line = word;
+				} else {
+					line += " " + word;
+				}
+			}
+		}
+		surfaces.add(renderText(size, line, color));
+		return combineVertically(surfaces, new Color(0, 0, 0, 0));
+	}
 	public static Surface combineVertically(Surface[] surfaces, Color background) {
 		int width = 1;
-		for (int i = 0; i < surfaces.length; i++) { int w = surfaces[i].get_width(); if (w > width) { width = w; } }
+		for (Surface surface : surfaces) { int w = surface.get_width(); if (w > width) width = w; }
 		int height = 1;
-		for (int i = 0; i < surfaces.length; i++) { int h = surfaces[i].get_height(); height += h; }
+		for (Surface surface : surfaces) { int h = surface.get_height(); height += h; }
 		Surface total = new Surface(width, height, background);
 		int cum_y = 0;
-		for (int i = 0; i < surfaces.length; i++) {
-			total.blit(surfaces[i], 0, cum_y);
-			cum_y += surfaces[i].get_height();
+		for (Surface surface : surfaces) {
+			// int imgX = (width / 2) - (surface.get_width() / 2);
+			total.blit(surface, 0, cum_y);
+			cum_y += surface.get_height();
 		}
 		return total;
 	}
 	public static Surface combineVertically(ArrayList<Surface> surfaces, Color background) {
 		return combineVertically(surfaces.toArray(new Surface[surfaces.size()]), background);
-	}
-	public static class DummyImageObserver implements ImageObserver {
-		public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {
-			return false;
-		}
 	}
 }

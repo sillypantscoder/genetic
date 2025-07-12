@@ -2,15 +2,15 @@ package com.sillypantscoder.geometrydash;
 
 import java.awt.Color;
 
-import com.sillypantscoder.gdgenetic.Surface;
 import com.sillypantscoder.geometrydash.tile.Tile;
+import com.sillypantscoder.windowlib.Surface;
 
 public class CubeMode extends GameMode {
 	public static final double JUMP_STRENGH = 0.35;
 	public CubeMode(Player player) {
 		super(player);
 	}
-	public Surface getIcon() {
+	public static Surface getCubeIcon() {
 		Surface s = new Surface(Tile.RENDER_TILE_SIZE, Tile.RENDER_TILE_SIZE, new Color(0, 0, 0, 0));
 		Color[] bands = new Color[] {
 			new Color(0, 0, 0, 255),
@@ -32,6 +32,9 @@ public class CubeMode extends GameMode {
 			s.drawLine(bands[i], j, j, j, i, 1);
 		}
 		return s;
+	}
+	public Surface getIcon() {
+		return CubeMode.getCubeIcon();
 	}
 	public void handleGround(double groundHeight) {
 		double targetRotation = (Math.floor((this.player.rotation - 45) / 90) * 90) + 90;

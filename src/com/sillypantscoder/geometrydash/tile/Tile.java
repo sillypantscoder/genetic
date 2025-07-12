@@ -1,9 +1,9 @@
 package com.sillypantscoder.geometrydash.tile;
 
 import com.sillypantscoder.geometrydash.SceneItem;
+import com.sillypantscoder.windowlib.Surface;
 import com.sillypantscoder.geometrydash.DoubleRect;
 import com.sillypantscoder.geometrydash.IntRect;
-import com.sillypantscoder.gdgenetic.Surface;
 import com.sillypantscoder.geometrydash.Player;
 
 public abstract class Tile extends SceneItem {

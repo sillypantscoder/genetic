@@ -2,8 +2,8 @@ package com.sillypantscoder.geometrydash.tile;
 
 import java.awt.Color;
 
-import com.sillypantscoder.gdgenetic.Surface;
 import com.sillypantscoder.geometrydash.Player;
+import com.sillypantscoder.windowlib.Surface;
 import com.sillypantscoder.geometrydash.CubeMode;
 import com.sillypantscoder.geometrydash.IntRect;
 

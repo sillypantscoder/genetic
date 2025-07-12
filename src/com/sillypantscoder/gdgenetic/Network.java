@@ -8,6 +8,8 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.function.Function;
 
+import com.sillypantscoder.windowlib.Surface;
+
 public class Network {
 	public int generations = 0;
 	public ArrayList<InputNode> inputs;

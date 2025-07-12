@@ -2,10 +2,10 @@ package com.sillypantscoder.geometrydash.tile;
 
 import java.awt.Color;
 
-import com.sillypantscoder.gdgenetic.Surface;
 import com.sillypantscoder.geometrydash.DoubleRect;
 import com.sillypantscoder.geometrydash.IntRect;
 import com.sillypantscoder.geometrydash.Utils;
+import com.sillypantscoder.windowlib.Surface;
 
 public class BasicSpike extends TileDeath {
 	public BasicSpike(double x, double y, boolean flipped) {

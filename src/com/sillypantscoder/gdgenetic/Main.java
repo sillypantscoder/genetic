@@ -10,7 +10,10 @@ import java.util.ArrayList;
 
 public class Main {
 	public static final String[] LOAD_NETWORKS = new File("./load_networks/").list();
+	public static final int totalIterations = 1000;
 	public static void main(String[] args) {
+		InfoWindow window = new InfoWindow();
+		window.open("Geometry Dash AI", 500, 600);
 		// Make our network
 		Network network = GeneticAlgorithm.createNetwork();
 		ArrayList<Network> networkList = new ArrayList<Network>();
@@ -34,34 +37,27 @@ public class Main {
 			}
 		}
 		// Initial score
+		window.status = "Finding initial score";
 		double initialScore = NetworkEvaluator.evaluateNetworksWithoutPrintingData(networkList)[0];
 		System.out.println("Initial score is: " + initialScore);
 		bar(initialScore);
 		// Run a bunch of iterations
-		int totalIterations = 1000;
-		double previousScore = initialScore;
-		for (int i = 0; i <= totalIterations; i++) {
-			// Find average score for this iteration
+		int i = 0; double previousScore = initialScore;
+		for (; i < totalIterations; i++) {
+			window.iterationsDone = i;
 			System.out.println("Iterations done: " + i + "/" + totalIterations + " (" + neat(((double)(i)/totalIterations)*100.0) + "%) - Starting iteration " + (i + 1));
-			double[] scores = NetworkEvaluator.evaluateNetworksWithoutPrintingData(networkList);
-			double score = scores[0];
-			int stagewidth = (int)(LevelGeneration.generateLevel().getStageWidth() / 0.2);
-			System.out.print("\tAverage score is: " + neat(score) + "/" + stagewidth);
-			System.out.println(" (" + (score>previousScore ? "+" : "-") + neat(Math.abs(score - previousScore)) + " from last; " +
-				(score>initialScore ? "+" : "-") + neat(Math.abs(score - initialScore)) + " from first)");
-			bar(score);
-			System.out.println("\tMaximum score is: " + neat(scores[1]) + "/" + stagewidth);
-			bar(scores[1]);
-			previousScore = score;
+			// Find average score for this iteration
+			window.status = "Finding average score before this iteration";
+			previousScore = showAverageAndMaximumPoolScores(networkList, previousScore, initialScore);
 			// Run the iteration
-			if (i == totalIterations) continue;
 			try {
-				networkList = GeneticAlgorithm.runOneIteration(networkList);
+				networkList = GeneticAlgorithm.runOneIteration(networkList, window);
 			} catch (Exception e) {
 				Utils.log("ERROR!!!!! Iteration " + (i + 1) + " failed!");
 				Utils.logError(e);
 			}
-			// Find which network is best
+			window.status = "Saving networks";
+			// Save networks
 			for (Network n : networkList) {
 				String filename = "outputs/network" + n.generations + "_";
 				int fi = 1;
@@ -77,7 +73,28 @@ public class Main {
 				}
 				// n.visualize(new NetworkNode[0]).save(filename);
 			}
+			// End?
+			if (window.stopSoon) break;
 		}
+		// End
+		System.out.println("Iterations done: " + i + "/" + totalIterations + " (" + neat(((double)(i)/totalIterations)*100.0) + "%)");
+		// Find average score at end
+		window.status = "Finding average score";
+		showAverageAndMaximumPoolScores(networkList, previousScore, initialScore);
+		window.status = "Done";
+		window.close();
+	}
+	public static double showAverageAndMaximumPoolScores(ArrayList<Network> networkList, double previousScore, double initialScore) {
+		double[] scores = NetworkEvaluator.evaluateNetworksWithoutPrintingData(networkList);
+		double score = scores[0];
+		int stagewidth = (int)(LevelGeneration.generateLevel().getStageWidth() / 0.2);
+		System.out.print("\tAverage score is: " + neat(score) + "/" + stagewidth);
+		System.out.println(" (" + (score>previousScore ? "+" : "-") + neat(Math.abs(score - previousScore)) + " from last; " +
+			(score>initialScore ? "+" : "-") + neat(Math.abs(score - initialScore)) + " from first)");
+		bar(score);
+		System.out.println("\tMaximum score is: " + neat(scores[1]) + "/" + stagewidth);
+		bar(scores[1]);
+		return score;
 	}
 	public static double neat(double in) {
 		return Math.round(in * 1000.0) / 1000.0;

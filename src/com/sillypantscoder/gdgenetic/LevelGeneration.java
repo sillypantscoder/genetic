@@ -1,5 +1,8 @@
 package com.sillypantscoder.gdgenetic;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
@@ -16,6 +19,7 @@ import com.sillypantscoder.geometrydash.tile.JumpOrb;
 import com.sillypantscoder.geometrydash.tile.NormalGravityPortal;
 import com.sillypantscoder.geometrydash.tile.ReverseGravityPortal;
 import com.sillypantscoder.geometrydash.tile.Tile;
+import com.sillypantscoder.windowlib.Surface;
 
 public class LevelGeneration {
 	public static Random random = new Random();
@@ -87,6 +91,8 @@ public class LevelGeneration {
 		structures.add(LevelGeneration::makeSunkenSpikes);
 		structures.add(LevelGeneration::makeSunkenSpikes);
 		structures.add(LevelGeneration::makeSunkenSpikes);
+		structures.add(LevelGeneration::makeSunkenSpikes);
+		structures.add(LevelGeneration::makeLessSunkenSpikes);
 		structures.add(LevelGeneration::makeLessSunkenSpikes);
 		structures.add(LevelGeneration::makeLessSunkenSpikes);
 		//
@@ -140,7 +146,7 @@ public class LevelGeneration {
 			new BasicBlock(14, 0, false),
 			new BasicBlock(14, 1, false),
 			new BasicBlock(14, 2, false),
-			new Coin(14, 3)
+			new Coin(14, 3).withValue(5)
 		}, 16);
 	}
 	public static Structure makeLongBlocks() {
@@ -208,7 +214,7 @@ public class LevelGeneration {
 	public static Structure makeOrbTower() {
 		return new Structure(new Tile[] {
 			new JumpOrb(3 + Math.round(Math.random()), 1 + Math.round(Math.random())),
-			new Coin(5, 0).withValue(-30),
+			new Coin(5, 1).withValue(-30),
 			new BasicBlock(6, 0, false),
 			new BasicBlock(6, 1, false),
 			new BasicBlock(6, 2, false)
@@ -308,6 +314,27 @@ public class LevelGeneration {
 			// render
 			Surface rendered = NetworkEvaluator.VideoMaker.renderScene(v, snapshots);
 			rendered.save("sm");
+			// get network
+			Network network = null;
+			try {
+				FileReader reader = new FileReader("./outputs/network1075_1.txt");
+				StringBuilder builder = new StringBuilder();
+				int data = reader.read();
+				while (data != -1) {
+					builder.append((char)(data));
+					data = reader.read();
+				}
+				network = Network.load(builder.toString());
+				reader.close();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			// run simulation
+			snapshots = NetworkEvaluator.VideoMaker.runSimulationWithSpecificLevel(network, v);
+			System.out.println("Saving...");
+			NetworkEvaluator.VideoMaker.saveVideo(network, v, snapshots);
 		}
 		public static View generateLevel() {
 			View v = new View();
@@ -331,8 +358,21 @@ public class LevelGeneration {
 			v.tiles.add(new BasicBlock(41, 2, false));
 			// long blocks
 			v.tiles.add(new BasicSpike(55, 0, false));
+			v.tiles.add(new BasicSpike(56, 0, false));
+			v.tiles.add(new BasicBlock(60, 0, false));
+			v.tiles.add(new BasicBlock(61, 0, false));
+			v.tiles.add(new BasicBlock(62, 0, false));
+			v.tiles.add(new BasicBlock(63, 0, false));
+			v.tiles.add(new BasicBlock(64, 0, false));
+			v.tiles.add(new BasicBlock(65, 0, false));
+			v.tiles.add(new BasicBlock(66, 0, false));
+			v.tiles.add(new BasicBlock(67, 0, false));
+			// long blocks 2
+			v.tiles.add(new BasicBlock(62, 1, false));
+			v.tiles.add(new BasicBlock(63, 1, false));
+			v.tiles.add(new BasicBlock(64, 1, false));
 			// finish
-			v.generationX = 5;
+			v.generationX = 80;
 			v.ownTiles();
 			return v;
 		}
